@@ -8,6 +8,11 @@
     background: #fafafa;
     margin: 1em; }
 
+.htd3 .legend rect {
+    opacity: 0.5;
+    stroke: #000;
+    stroke-width: 0.2pt; }
+
 .htd3 .track {
     width: 100%; }
     .htd3 .track .base {

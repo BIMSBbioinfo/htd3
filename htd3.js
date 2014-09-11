@@ -12,6 +12,7 @@ var htd3 = (function () {
           colors: {
             score: ['red', 'black', 'green']
           },
+          legendHeight: 20,
           trackHeight: 15,
           linkRadiusRatio: 0.8,
           width: 800,
@@ -22,6 +23,41 @@ var htd3 = (function () {
 
     // private functions
     priv.draw = {
+      legend: function (selection) {
+        var legend = selection.append('g').attr('class', 'legend'),
+            gradient = legend.append('defs').append('linearGradient').attr('id', 'legendGradient'),
+            node,
+            offset = 0,
+            legendPadding = 4;
+
+        for (var i=0; i <= settings.colors.score.length; i++) {
+          var percent = i/settings.colors.score.length;
+          gradient.append('stop')
+            .attr('offset', (100*percent) + '%')
+            .attr('stop-color', priv.scale.linkColor(percent) );
+        };
+
+        node = legend.append('text')
+          .text(d3.min(self.data.scores))
+          .attr('dominant-baseline', 'middle')
+          .attr('x', legendPadding)
+          .attr('y', settings.legendHeight / 2);
+        offset += node.node().getBBox().width + legendPadding * 2;
+
+        node = legend.append('rect')
+          .attr('fill', 'url(#legendGradient)')
+          .attr('height', settings.legendHeight)
+          .attr('width', 100)
+          .attr('x', offset);
+        offset += node.node().getBBox().width + legendPadding;
+
+        legend.append('text')
+          .text(d3.max(self.data.scores))
+          .attr('dominant-baseline', 'middle')
+          .attr('x', offset)
+          .attr('y', settings.legendHeight / 2);
+      },
+
       // draw track with all associations
       track: function (d, i) {
         var context = d3.select(this),
@@ -177,6 +213,9 @@ var htd3 = (function () {
         .call(priv.axes.x
               .ticks(40)
               .tickSize(5, 10));
+
+      // draw legend
+      chart.call(priv.draw.legend);
 
       // style chart
       chart
