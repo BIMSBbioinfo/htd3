@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="htd3.js" charset="utf-8"></script>
+    <link href="htd3.css" media="all" rel="stylesheet" type="text/css">
+  </head>
+  <body>
+    <h1>Example</h1>
+
+    <p>
+      This is an example visualisation of the data in the
+      file <code>example.bed</code> using
+      the <code>associations</code> graph.
+    </p>
+
+    <div id="container"></div>
+
+    <script type="text/javascript">
+      htd3('example.bed', 'associations', '#container').settings({width: 1200});
+    </script>
+  </body>
+</html>
