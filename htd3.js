@@ -287,9 +287,9 @@ var htd3 = (function () {
       return self;
     };
 
-    // load tab-separated data from URL, store in self and pass to
-    // callback function
-    self.load = function (url) {
+
+    // load tab-separated data from URL or JSON array
+    self.load = function (url_or_data) {
       // convert some fields to numbers
       function converter (d) {
         return {
@@ -303,8 +303,13 @@ var htd3 = (function () {
         };
       };
 
-      // fetch file from URL, convert data and pass grouped data to
-      d3.tsv(url, converter, self.bind_data);
+      if (typeof(url_or_data) === 'object') {
+        return self.bind_data(url_or_data);
+      } else {
+        // fetch file from URL, convert data and bind grouped data
+        d3.tsv(url_or_data, converter, self.bind_data);
+      }
+
       return self;
     };
 
@@ -321,13 +326,7 @@ var htd3 = (function () {
 
     if (graph && typeof(graph) === 'function') {
       target = d3.select(_target || 'body').append('svg');
-
-      // load data from array or URL
-      if (typeof(url_or_data) === 'array') {
-        return graph(target).bind_data(url_or_data);
-      } else {
-        return graph(target).load(url_or_data);
-      }
+      return graph(target).load(url_or_data);
     } else {
       console.log("ERROR: unknown graph '"+graph_name+"'.");
       return undefined;
