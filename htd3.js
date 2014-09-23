@@ -162,7 +162,14 @@ var htd3 = (function () {
       // set up chart
       var chart = priv.chart,
           graph = selection,
-          computedHeight;
+          computedHeight,
+          boundData;
+
+      // abort if no data is bound!
+      boundData = selection.each(function () { console.log(this); return d3.select(this).datum(); });
+      if (boundData.length === 0) {
+        return self;
+      }
 
       // update axes and scales
       priv.scale = {
@@ -222,6 +229,8 @@ var htd3 = (function () {
         .attr('class', 'htd3 chart')
         .attr('width', settings.width)
         .attr('height', computedHeight);
+
+      return self;
     };
 
     // public functions
