@@ -166,8 +166,7 @@ var htd3 = (function () {
           boundData;
 
       // abort if no data is bound!
-      boundData = selection.each(function () { console.log(this); return d3.select(this).datum(); });
-      if (boundData.length === 0) {
+      if (self.data === undefined) {
         return self;
       }
 
