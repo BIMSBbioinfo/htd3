@@ -233,6 +233,25 @@ var htd3 = (function () {
       return self;
     };
 
+    priv.store = function (data) {
+      // group rows by "chr" column
+      function groupByTrack (rows) {
+        return d3.nest()
+          .key(function (d) { return d.chr; })
+          .entries(rows);
+      };
+
+      self.data = {};
+      self.data.records = groupByTrack(data);
+
+      // gather x values and scores for scale
+      self.data.x = d3.merge(data.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; }));
+      self.data.scores = data.map(function (d) { return +d.score; });
+
+      return data;
+    };
+
+
     // public functions
     function self (selection) {
       // keep selection around for renderer
@@ -260,17 +279,18 @@ var htd3 = (function () {
 
     // create a data group containing one group for each data item; then render
     self.bind_data = function (data) {
+      priv.store(data);
       priv.chart
         .append('g').attr('class', 'data')
         .selectAll('g')
-        .data(data)
+        .data(self.data.records)
         .call(priv.render);
       return self;
     };
 
     // load tab-separated data from URL, store in self and pass to
     // callback function
-    self.load = function (url, callback) {
+    self.load = function (url) {
       // convert some fields to numbers
       function converter (d) {
         return {
@@ -284,27 +304,8 @@ var htd3 = (function () {
         };
       };
 
-      // group rows by "chr" column
-      function groupByTrack (rows) {
-        return d3.nest()
-          .key(function (d) { return d.chr; })
-          .entries(rows);
-      };
-
       // fetch file from URL, convert data and pass grouped data to
-      // callback function
-      d3.tsv(url, converter, function (d) {
-        self.data = {};
-        self.data.records = groupByTrack(d);
-
-        // gather x values and scores for scale
-        self.data.x = d3.merge(d.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; }));
-        self.data.scores = d.map(function (d) { return +d.score; });
-
-        // run callback
-        callback(self.data.records);
-      });
-
+      d3.tsv(url, converter, self.bind_data);
       return self;
     };
 
@@ -326,7 +327,7 @@ var htd3 = (function () {
       if (typeof(url_or_data) === 'array') {
         return graph(target).bind_data(url_or_data);
       } else {
-        return graph(target).load(url_or_data, graph.bind_data);
+        return graph(target).load(url_or_data);
       }
     } else {
       console.log("ERROR: unknown graph '"+graph_name+"'.");
