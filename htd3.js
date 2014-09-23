@@ -158,10 +158,10 @@ var htd3 = (function () {
       }
     };
 
-    priv.render = function (data) {
+    priv.render = function (selection) {
       // set up chart
-          graph = chart.append("g").attr('class', 'data').selectAll("g").data(data),
       var chart = priv.chart,
+          graph = selection,
           computedHeight;
 
       // update axes and scales
@@ -226,15 +226,11 @@ var htd3 = (function () {
 
     // public functions
     function self (selection) {
-      var filename = selection.data()[0];
-
       // keep selection around for renderer
       priv.chart = selection;
 
-      // initialise settings, load data and render
-      return self
-        .settings(settings)
-        .load(filename, priv.render);
+      // initialise settings
+      return self.settings(settings);
     };
 
     // chainable getter / setter for settings
@@ -245,6 +241,16 @@ var htd3 = (function () {
         settings[attrname] = newSettings[attrname];
       };
 
+      return self;
+    };
+
+    // create a data group containing one group for each data item; then render
+    self.bind_data = function (data) {
+      priv.chart
+        .append('g').attr('class', 'data')
+        .selectAll('g')
+        .data(data)
+        .call(priv.render);
       return self;
     };
 
@@ -294,12 +300,20 @@ var htd3 = (function () {
 
   // render the specified graph using the data in the specified
   // filename.  Takes an optional _target element to hold the graph.
-  return function htd3 (filename, graph_name, _target) {
-    var target = d3.select(_target || 'body').append('svg').data([filename]),
-        graph = graphs[graph_name];
+  return function htd3 (url_or_data, graph_name, _target) {
+    var graph = graphs[graph_name],
+        data,
+        target;
 
     if (graph && typeof(graph) === 'function') {
-      return graph(target);
+      target = d3.select(_target || 'body').append('svg');
+
+      // load data from array or URL
+      if (typeof(url_or_data) === 'array') {
+        return graph(target).bind_data(url_or_data);
+      } else {
+        return graph(target).load(url_or_data, graph.bind_data);
+      }
     } else {
       console.log("ERROR: unknown graph '"+graph_name+"'.");
       return undefined;
