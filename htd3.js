@@ -5,7 +5,7 @@ var htd3 = (function () {
 
 
   // visualisation of associations between regions
-  graphs.associations = (function () {
+  graphs.associations = function () {
     var priv = {},
         trackOffset = 0,
         settings = {
@@ -314,7 +314,7 @@ var htd3 = (function () {
     };
 
     return self;
-  })();
+  };
 
 
   // render the specified graph using the data in the specified
@@ -326,7 +326,7 @@ var htd3 = (function () {
 
     if (graph && typeof(graph) === 'function') {
       target = d3.select(_target || 'body').append('svg');
-      return graph(target).load(url_or_data);
+      return graph()(target).load(url_or_data);
     } else {
       console.log("ERROR: unknown graph '"+graph_name+"'.");
       return undefined;
