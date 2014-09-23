@@ -160,8 +160,8 @@ var htd3 = (function () {
 
     priv.render = function (data) {
       // set up chart
-      var chart = priv.selection,
           graph = chart.append("g").attr('class', 'data').selectAll("g").data(data),
+      var chart = priv.chart,
           computedHeight;
 
       // update axes and scales
@@ -229,7 +229,7 @@ var htd3 = (function () {
       var filename = selection.data()[0];
 
       // keep selection around for renderer
-      priv.selection = selection;
+      priv.chart = selection;
 
       // initialise settings, load data and render
       return self
