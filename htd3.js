@@ -239,7 +239,12 @@ var htd3 = (function () {
       priv.chart = selection;
 
       // initialise settings
-      return self.settings(settings);
+      self.settings(settings);
+
+      // render data
+      priv.chart.select('g.data').selectAll('g').call(priv.render);
+
+      return self;
     };
 
     // chainable getter / setter for settings
