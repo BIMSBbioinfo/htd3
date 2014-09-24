@@ -28,9 +28,10 @@ var htd3 = (function () {
         };
 
     // private functions
-    priv.draw = {
-      trackOffset: 0,
-      legend: function (selection) {
+    priv.render = (function () {
+      var trackOffset = 0;
+
+      function drawLegend (selection) {
         var legend = selection.append('g').attr('class', 'legend'),
             gradientId,
             gradient = legend.append('defs').append('linearGradient'),
@@ -72,10 +73,10 @@ var htd3 = (function () {
           .attr('dominant-baseline', 'middle')
           .attr('x', offset)
           .attr('y', settings.legendHeight / 2);
-      },
+      }
 
       // draw track with all associations
-      track: function (d, i) {
+      function drawTrack (d, i) {
         var context = d3.select(this),
             computedHeight,
             y;
@@ -95,18 +96,18 @@ var htd3 = (function () {
           .attr('x', 3)
           .attr('y', settings.trackHeight / 2);
 
-        // draw regions for this track
-        d.values.forEach( function (d, i) { priv.draw.association(context, d, i); } );
+        // draw regions with associations for this track
+        d.values.forEach( function (d, i) { drawAssociation(context, d, i); } );
 
         // adjust vertical position based on computed track height
         computedHeight = context.node().getBBox().y;
-        y = -computedHeight + priv.draw.trackOffset + settings.paddingY;
+        y = -computedHeight + trackOffset + settings.paddingY;
         context.attr('transform', 'translate(0,'+ y +')');
-        priv.draw.trackOffset = y;
-      },
+        trackOffset = y;
+      }
 
       // generate link path
-      link: function (d) {
+      function linkPath (d) {
         var left = d.target,
             right = d.source,
             ry = settings.linkRadiusRatio;
@@ -123,10 +124,10 @@ var htd3 = (function () {
           + 'L' + right.x0 + ',0 '   // line from target right to left
           + 'A1,' + ry + ' 0 0,0 '   // radius x/y, axis rotation, large-arc-flag, sweep-flag
           + left.x1  + ",0 z";       // target of inner arc
-      },
+      }
 
       // draw an association between two regions
-      association: function (track, d, i) {
+      function drawAssociation (track, d, i) {
         // prepare data structure for link rendering
         var group = track.append('g').attr('class', 'association'),
             normalised_score,
@@ -164,7 +165,7 @@ var htd3 = (function () {
         normalised_score = (d.score - d3.min(self.data.scores)) / (d3.max(self.data.scores) - d3.min(self.data.scores));
         group.append('path')
           .attr('class', 'link')
-          .attr('d', priv.draw.link(linkObjects))
+          .attr('d', linkPath(linkObjects))
           .style({fill: priv.scale.linkColor(normalised_score)})
           .attr('title', 'score: '+d.score);
 
@@ -183,84 +184,85 @@ var htd3 = (function () {
           group.classed({'selected': false});
         });
       }
-    };
 
-    priv.render = function (selection) {
-      var graph = selection,
-          computedHeight,
-          boundData;
+      // return actual render function
+      return function (selection) {
+        var graph = selection,
+            computedHeight,
+            boundData;
 
-      // abort if no data is bound!
-      if (self.data === undefined) {
+        // abort if no data is bound!
+        if (self.data === undefined) {
+          return self;
+        }
+
+        // update axes and scales
+        priv.scale = {
+          linkColor: d3.scale.linear()
+            .domain(d3.scale.linear().ticks(settings.colors.score.length))
+            .range(settings.colors.score),
+          x: (function () {
+            var extent = d3.extent(self.data.x),
+                padded_extent = [ extent[0] - settings.paddingX,
+                                  extent[1] + settings.paddingX ];
+
+            return d3.scale.linear()
+              .domain(padded_extent)
+              .range([0, settings.width]);
+          })()
+        };
+
+        priv.axes = {
+          x: d3.svg.axis()
+            .scale(priv.scale.x)
+            .orient("bottom")
+            .tickPadding(settings.paddingTick)
+            .ticks(10)
+        };
+
+        // process entering data
+        graph
+          .enter()
+          .append("g")
+          .attr('class', 'track')
+          .transition()
+          .delay(function (d, i) { return i * settings.animation.trackDelay; })
+          .each(drawTrack);
+
+        // process exiting data
+        graph.exit().remove();
+
+        // draw grid and axis
+        computedHeight = chart.node().getBBox().height + 2 * settings.paddingY;
+
+        chart.append("g")
+          .attr("class", "grid")
+          .attr("transform", "translate(0," + computedHeight + ")")
+          .call(priv.axes.x
+                .tickSize(-computedHeight, 0));
+
+        chart.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + computedHeight + ")")
+          .call(priv.axes.x
+                .ticks(40)
+                .tickSize(5, 10));
+
+        // draw legend
+        chart.call(drawLegend);
+
+        // recompute height to include axes
+        computedHeight = chart.node().getBBox().height;
+
+        // style chart
+        chart
+          .attr('class', 'htd3 chart')
+          .attr('width', settings.width)
+          .attr('height', computedHeight);
+
         return self;
-      }
-
-      // update axes and scales
-      priv.scale = {
-        linkColor: d3.scale.linear()
-          .domain(d3.scale.linear().ticks(settings.colors.score.length))
-          .range(settings.colors.score),
-        x: (function () {
-          var extent = d3.extent(self.data.x),
-              padded_extent = [ extent[0] - settings.paddingX,
-                                extent[1] + settings.paddingX ];
-
-          return d3.scale.linear()
-            .domain(padded_extent)
-            .range([0, settings.width]);
-        })()
       };
-
-      priv.axes = {
-        x: d3.svg.axis()
-          .scale(priv.scale.x)
-          .orient("bottom")
-          .tickPadding(settings.paddingTick)
-          .ticks(10)
-      };
-
-      // process entering data
-      graph
-        .enter()
-        .append("g")
-        .attr('class', 'track')
-        .transition()
-        .delay(function (d, i) { return i * settings.animation.trackDelay; })
-        .each(priv.draw.track);
-
-      // process exiting data
-      graph.exit().remove();
-
-      // draw grid and axis
-      computedHeight = chart.node().getBBox().height + 2 * settings.paddingY;
-
-      chart.append("g")
-        .attr("class", "grid")
-        .attr("transform", "translate(0," + computedHeight + ")")
-        .call(priv.axes.x
-              .tickSize(-computedHeight, 0));
-
-      chart.append("g")
-        .attr("class", "x axis")
-        .attr("transform", "translate(0," + computedHeight + ")")
-        .call(priv.axes.x
-              .ticks(40)
-              .tickSize(5, 10));
-
-      // draw legend
-      chart.call(priv.draw.legend);
-
-      // recompute height to include axes
-      computedHeight = chart.node().getBBox().height;
-
-      // style chart
-      chart
-        .attr('class', 'htd3 chart')
-        .attr('width', settings.width)
-        .attr('height', computedHeight);
-
-      return self;
-    };
+    })();
 
     priv.store = function (data) {
       // group rows by "chr" column
