@@ -128,6 +128,7 @@ var htd3 = (function () {
       association: function (track, d, i) {
         // prepare data structure for link rendering
         var group = track.append('g').attr('class', 'association'),
+            normalised_score,
             linkObjects = {
               source: {
                 x0: priv.scale.x(d.start),
@@ -159,10 +160,11 @@ var htd3 = (function () {
           .attr('title', 'target: ' + d.targetStart + ':' + d.targetEnd);
 
         // draw link to target region on same track
+        normalised_score = (d.score - d3.min(self.data.scores)) / (d3.max(self.data.scores) - d3.min(self.data.scores));
         group.append('path')
           .attr('class', 'link')
           .attr('d', priv.draw.link(linkObjects))
-          .style({fill: priv.scale.linkColor(d.score/d3.max(self.data.scores))})
+          .style({fill: priv.scale.linkColor(normalised_score)})
           .attr('title', 'score: '+d.score);
 
         // fade in
