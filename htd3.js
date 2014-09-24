@@ -9,6 +9,7 @@ var htd3 = (function () {
   // visualisation of associations between regions
   graphs.associations = function (selection) {
     var priv = {},
+        chart = selection,
         trackOffset = 0,
         settings = {
           animation: {
@@ -185,9 +186,7 @@ var htd3 = (function () {
     };
 
     priv.render = function (selection) {
-      // set up chart
-      var chart = priv.chart,
-          graph = selection,
+      var graph = selection,
           computedHeight,
           boundData;
 
@@ -284,14 +283,11 @@ var htd3 = (function () {
 
     // public functions
     function self (selection) {
-      // keep selection around for renderer
-      priv.chart = selection;
-
       // initialise settings
       self.settings(settings);
 
       // render data
-      priv.chart.select('g.data').selectAll('g').call(priv.render);
+      chart.select('g.data').selectAll('g').call(priv.render);
 
       return self;
     };
@@ -310,7 +306,7 @@ var htd3 = (function () {
     // create a data group containing one group for each data item; then render
     self.bind_data = function (data) {
       priv.store(data);
-      priv.chart
+      chart
         .append('g').attr('class', 'data')
         .selectAll('g')
         .data(self.data.records)
