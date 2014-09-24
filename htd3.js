@@ -27,7 +27,8 @@ var htd3 = (function () {
     priv.draw = {
       legend: function (selection) {
         var legend = selection.append('g').attr('class', 'legend'),
-            gradient = legend.append('defs').append('linearGradient').attr('id', 'legendGradient'),
+            gradientId,
+            gradient = legend.append('defs').append('linearGradient'),
             node,
             offset = 0,
             legendPadding = 4;
@@ -38,6 +39,9 @@ var htd3 = (function () {
             .attr('offset', (100*percent) + '%')
             .attr('stop-color', priv.scale.linkColor(percent) );
         };
+        // give the gradient a unique id
+        gradientId = 'linearGradient_' + settings.colors.score.join('_');
+        gradient.attr('id', gradientId),
 
         node = legend.append('text')
           .text(d3.min(self.data.scores))
@@ -47,7 +51,7 @@ var htd3 = (function () {
         offset += node.node().getBBox().width + legendPadding * 2;
 
         node = legend.append('rect')
-          .attr('fill', 'url(#legendGradient)')
+          .attr('fill', 'url(#'+gradientId+')')
           .attr('height', settings.legendHeight)
           .attr('width', 100)
           .attr('x', offset);
