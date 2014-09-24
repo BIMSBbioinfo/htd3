@@ -280,6 +280,18 @@ var htd3 = (function () {
       return data;
     };
 
+    // convert some fields to numbers
+    priv.converter = function (d) {
+      return {
+        chr:          d.chr,
+        start:       +d.start,
+        end:         +d.end,
+        targetChr:    d.targetChr,
+        targetStart: +d.targetStart,
+        targetEnd:   +d.targetEnd,
+        score:       +d.associationScore
+      };
+    };
 
     // public functions
     function self (selection) {
@@ -317,24 +329,11 @@ var htd3 = (function () {
 
     // load tab-separated data from URL or JSON array
     self.load = function (url_or_data) {
-      // convert some fields to numbers
-      function converter (d) {
-        return {
-          chr:          d.chr,
-          start:       +d.start,
-          end:         +d.end,
-          targetChr:    d.targetChr,
-          targetStart: +d.targetStart,
-          targetEnd:   +d.targetEnd,
-          score:       +d.associationScore
-        };
-      };
-
       if (typeof(url_or_data) === 'object') {
         return self.bind_data(url_or_data);
       } else {
         // fetch file from URL, convert data and bind grouped data
-        d3.tsv(url_or_data, converter, self.bind_data);
+        d3.tsv(url_or_data, priv.converter, self.bind_data);
       }
 
       return self;
