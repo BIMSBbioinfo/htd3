@@ -11,6 +11,10 @@ var htd3 = (function () {
     var priv = {},
         trackOffset = 0,
         settings = {
+          animation: {
+            groupDelay: 600,
+            trackDelay: 500
+          },
           colors: {
             score: ['red', 'black', 'green']
           },
@@ -91,7 +95,7 @@ var htd3 = (function () {
           .attr('y', settings.trackHeight / 2);
 
         // draw regions for this track
-        d.values.forEach( function (i) { priv.draw.association(context, i); } );
+        d.values.forEach( function (d, i) { priv.draw.association(context, d, i); } );
 
         // adjust vertical position based on computed track height
         computedHeight = context.node().getBBox().y;
@@ -121,7 +125,7 @@ var htd3 = (function () {
       },
 
       // draw an association between two regions
-      association: function (track, d) {
+      association: function (track, d, i) {
         // prepare data structure for link rendering
         var group = track.append('g').attr('class', 'association'),
             linkObjects = {
@@ -135,6 +139,9 @@ var htd3 = (function () {
               }
             };
 
+        // hide group initially
+        group.attr('opacity', 0);
+
         // draw region rectangle
         group.append('rect')
           .attr('height', settings.trackHeight)
@@ -145,10 +152,10 @@ var htd3 = (function () {
 
         // draw target rectangle
         group.append('rect')
+          .attr('class', 'region target')
           .attr('height', settings.trackHeight)
           .attr('width', priv.scale.x(d.targetEnd) - priv.scale.x(d.targetStart))
           .attr('x', priv.scale.x(d.targetStart))
-          .attr('class', 'region target')
           .attr('title', 'target: ' + d.targetStart + ':' + d.targetEnd);
 
         // draw link to target region on same track
@@ -157,6 +164,12 @@ var htd3 = (function () {
           .attr('d', priv.draw.link(linkObjects))
           .style({fill: priv.scale.linkColor(d.score/d3.max(self.data.scores))})
           .attr('title', 'score: '+d.score);
+
+        // fade in
+        group
+          .transition()
+          .duration((i + 1) * settings.animation.groupDelay)
+          .attr('opacity', 1);
 
         // bring group to the top on hover
         group.on('mouseover', function () {
@@ -210,6 +223,8 @@ var htd3 = (function () {
         .enter()
         .append("g")
         .attr('class', 'track')
+        .transition()
+        .delay(function (d, i) { return i * settings.animation.trackDelay; })
         .each(priv.draw.track);
 
       // process exiting data
