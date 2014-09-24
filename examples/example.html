@@ -2,23 +2,82 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+    <script src="../d3.v3.min.js" charset="utf-8"></script>
     <script src="../htd3.js" charset="utf-8"></script>
+    <link href="example.css" media="all" rel="stylesheet" type="text/css">
     <link href="../htd3.css" media="all" rel="stylesheet" type="text/css">
   </head>
   <body>
-    <h1>Example</h1>
+    <div class="example">
+      <h1>Example 1</h1>
 
-    <p>
-      This is an example visualisation of the data in the
-      file <code>example.bed</code> using
-      the <code>associations</code> graph.
-    </p>
+      <p>
+        This is an example visualisation of the data in the
+        file <code>example.bed</code> using
+        the <code>associations</code> graph.
+      </p>
+      <pre>
+        var example1 = htd3('example.bed', 'associations', '#chart-example1');
+      </pre>
 
-    <div id="container"></div>
+      <div id="chart-example1"></div>
+      <script type="text/javascript">
+        var example1 = htd3('example.bed', 'associations', '#chart-example1');
+      </script>
+    </div>
 
-    <script type="text/javascript">
-      var example1 = htd3('example.bed', 'associations', '#container').settings({width: 1200});
-    </script>
+
+    <div class="example">
+      <h1>Example 2</h1>
+
+      <p>
+        Here is an <code>associations</code> visualisation of test data that is provided directly as JSON.
+      </p>
+      <pre>
+        var testData = [{ chr: 'chr3',
+                          start: 10,
+                          end:   20,
+                          targetChr: 'chr3',
+                          targetStart: 60,
+                          targetEnd: 62,
+                          score: 3,
+                        },
+                        { chr: 'chr5',
+                          start: 70,
+                          end:   100,
+                          targetChr: 'chr5',
+                          targetStart: 57,
+                          targetEnd: 59,
+                          score: 7,
+                        },
+                       ];
+
+        var example2 = htd3(testData, 'associations', '#example2').settings({width: 800});
+      </pre>
+      <div id="example2"></div>
+
+      <script type="text/javascript">
+        var testData = [{ chr: 'chr3',
+                          start: 10,
+                          end:   20,
+                          targetChr: 'chr3',
+                          targetStart: 60,
+                          targetEnd: 62,
+                          score: 3,
+                        },
+                        { chr: 'chr5',
+                          start: 70,
+                          end:   100,
+                          targetChr: 'chr5',
+                          targetStart: 57,
+                          targetEnd: 59,
+                          score: 7,
+                        },
+                       ];
+
+        var example2 = htd3(testData, 'associations', '#example2').settings({width: 800});
+      </script>
+    </div>
+
   </body>
 </html>
