@@ -52,7 +52,7 @@
                         },
                        ];
 
-        var example2 = htd3('associations', testData, '#example2').settings({width: 800});
+        var example2 = htd3('associations', testData, '#example2');
       </pre>
       <div id="example2"></div>
 
@@ -75,7 +75,44 @@
                         },
                        ];
 
-        var example2 = htd3('associations', testData, '#example2').settings({width: 800});
+        var example2 = htd3('associations', testData, '#example2');
+      </script>
+    </div>
+
+    <div class="example">
+      <h1>Example 3</h1>
+
+      <p>
+        Here is the same <code>associations</code> visualisation, but
+        this time called in a more d3js-idiomatic fashion.  This is
+        done by creating a selection and calling the chart method on
+        it.
+      </p>
+      <pre>
+        var settings = {
+          width: 1000,
+          colors: { score: ['blue', '#ff3300'] },
+        };
+
+        var selection = d3.select('#example3').append('svg');
+
+        var example3 = htd3.graphs.associations(selection)
+          .settings(settings)
+          .load('example.bed');
+      </pre>
+      <div id="example3"></div>
+
+      <script type="text/javascript">
+        var settings = {
+          width: 1000,
+          colors: { score: ['blue', '#ff3300'] },
+        };
+
+        var selection = d3.select('#example3').append('svg');
+
+        var example3 = htd3.graphs.associations(selection)
+          .settings(settings)
+          .load('example.bed');
       </script>
     </div>
 
