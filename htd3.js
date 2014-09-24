@@ -33,16 +33,19 @@ var htd3 = (function () {
             offset = 0,
             legendPadding = 4;
 
+        // build gradient stops from colors
         for (var i=0; i <= settings.colors.score.length; i++) {
           var percent = i/settings.colors.score.length;
           gradient.append('stop')
             .attr('offset', (100*percent) + '%')
             .attr('stop-color', priv.scale.linkColor(percent) );
         };
+
         // give the gradient a unique id
         gradientId = 'linearGradient_' + settings.colors.score.join('_');
         gradient.attr('id', gradientId),
 
+        // place minimum value text to the left...
         node = legend.append('text')
           .text(d3.min(self.data.scores))
           .attr('dominant-baseline', 'middle')
@@ -50,6 +53,7 @@ var htd3 = (function () {
           .attr('y', settings.legendHeight / 2);
         offset += node.node().getBBox().width + legendPadding * 2;
 
+        // ...the gradient box in the middle...
         node = legend.append('rect')
           .attr('fill', 'url(#'+gradientId+')')
           .attr('height', settings.legendHeight)
@@ -57,6 +61,7 @@ var htd3 = (function () {
           .attr('x', offset);
         offset += node.node().getBBox().width + legendPadding;
 
+        // ...and the maximum value text on the right.
         legend.append('text')
           .text(d3.max(self.data.scores))
           .attr('dominant-baseline', 'middle')
