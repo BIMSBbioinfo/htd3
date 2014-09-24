@@ -225,6 +225,9 @@ var htd3 = (function () {
       // draw legend
       chart.call(priv.draw.legend);
 
+      // recompute height to include axes
+      computedHeight = chart.node().getBBox().height;
+
       // style chart
       chart
         .attr('class', 'htd3 chart')
