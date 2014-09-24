@@ -1,11 +1,13 @@
 'use strict';
 
 var htd3 = (function () {
+  // any graph is a function that takes a d3 selection and returns a
+  // function initialised with said selection.
   var graphs = {};
 
 
   // visualisation of associations between regions
-  graphs.associations = function () {
+  graphs.associations = function (selection) {
     var priv = {},
         trackOffset = 0,
         settings = {
@@ -313,7 +315,7 @@ var htd3 = (function () {
       return self;
     };
 
-    return self;
+    return self(selection);
   };
 
 
@@ -326,7 +328,7 @@ var htd3 = (function () {
 
     if (graph && typeof(graph) === 'function') {
       target = d3.select(_target || 'body').append('svg');
-      return graph()(target).load(url_or_data);
+      return graph(target).load(url_or_data);
     } else {
       console.log("ERROR: unknown graph '"+graph_name+"'.");
       return undefined;
