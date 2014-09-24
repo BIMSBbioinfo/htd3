@@ -321,7 +321,7 @@ var htd3 = (function () {
 
   // render the specified graph using the data in the specified
   // filename.  Takes an optional _target element to hold the graph.
-  return function htd3 (url_or_data, graph_name, _target) {
+  return function htd3 (graph_name, url_or_data, _target) {
     var graph = graphs[graph_name],
         data,
         target;
