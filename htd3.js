@@ -10,7 +10,6 @@ var htd3 = (function () {
   graphs.associations = function (selection) {
     var priv = {},
         chart = selection,
-        trackOffset = 0,
         settings = {
           animation: {
             groupDelay: 600,
@@ -30,6 +29,7 @@ var htd3 = (function () {
 
     // private functions
     priv.draw = {
+      trackOffset: 0,
       legend: function (selection) {
         var legend = selection.append('g').attr('class', 'legend'),
             gradientId,
@@ -100,9 +100,9 @@ var htd3 = (function () {
 
         // adjust vertical position based on computed track height
         computedHeight = context.node().getBBox().y;
-        y = -computedHeight + trackOffset + settings.paddingY;
+        y = -computedHeight + priv.draw.trackOffset + settings.paddingY;
         context.attr('transform', 'translate(0,'+ y +')');
-        trackOffset = y;
+        priv.draw.trackOffset = y;
       },
 
       // generate link path
