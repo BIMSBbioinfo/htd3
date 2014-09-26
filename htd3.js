@@ -91,7 +91,6 @@ var htd3 = (function () {
         function drawAssociation (d, i) {
           // prepare data structure for link rendering
           var group = d3.select(this),
-              normalised_score,
               linkObjects = {
                 source: {
                   x0: priv.scale.x(d.start),
