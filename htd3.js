@@ -12,8 +12,8 @@ var htd3 = (function () {
         chart = selection,
         settings = {
           animation: {
-            groupDelay: 600,
-            trackDelay: 500
+            groupDelay: 300,
+            trackDelay: 200
           },
           colors: {
             score: ['red', 'black', 'green']
