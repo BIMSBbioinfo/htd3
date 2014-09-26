@@ -31,7 +31,7 @@ var htd3 = (function () {
     priv.render = (function () {
       var trackOffset = 0;
 
-      function drawLegend (selection) {
+      function drawLegend (selection, min, max) {
         var legend = selection.append('g').attr('class', 'legend'),
             gradientId,
             gradient = legend.append('defs').append('linearGradient'),
@@ -53,7 +53,7 @@ var htd3 = (function () {
 
         // place minimum value text to the left...
         node = legend.append('text')
-          .text(d3.min(self.data.scores))
+          .text(min)
           .attr('dominant-baseline', 'middle')
           .attr('x', legendPadding)
           .attr('y', settings.legendHeight / 2);
@@ -69,7 +69,7 @@ var htd3 = (function () {
 
         // ...and the maximum value text on the right.
         legend.append('text')
-          .text(d3.max(self.data.scores))
+          .text(max)
           .attr('dominant-baseline', 'middle')
           .attr('x', offset)
           .attr('y', settings.legendHeight / 2);
@@ -262,7 +262,9 @@ var htd3 = (function () {
                 .tickSize(5, 10));
 
         // draw legend
-        chart.call(drawLegend);
+        var min = d3.min(self.data.scores),
+            max = d3.max(self.data.scores);
+        chart.call(drawLegend, min, max);
 
         // recompute height to include axes
         computedHeight = chart.node().getBBox().height;
