@@ -83,6 +83,60 @@ var htd3 = (function () {
             min = d3.min(self.data.scores),
             max = d3.max(self.data.scores);
 
+        function normaliseScore (score) {
+          return (score - min) / (max - min);
+        };
+
+        // draw an association between two regions
+        function drawAssociation (d, i) {
+          // prepare data structure for link rendering
+          var group = d3.select(this),
+              normalised_score,
+              linkObjects = {
+                source: {
+                  x0: priv.scale.x(d.start),
+                  x1: priv.scale.x(d.end)
+                },
+                target: {
+                  x0: priv.scale.x(d.targetStart),
+                  x1: priv.scale.x(d.targetEnd)
+                }
+              };
+
+          // draw region rectangle
+          group.append('rect')
+            .attr('class', 'region source')
+            .attr('height', settings.trackHeight)
+            .attr('width', priv.scale.x(d.end) - priv.scale.x(d.start))
+            .attr('x', priv.scale.x(d.start))
+            .attr('title', 'source: ' + d.start + ':' + d.end);
+
+          // draw target rectangle
+          group.append('rect')
+            .attr('class', 'region target')
+            .attr('height', settings.trackHeight)
+            .attr('width', priv.scale.x(d.targetEnd) - priv.scale.x(d.targetStart))
+            .attr('x', priv.scale.x(d.targetStart))
+            .attr('title', 'target: ' + d.targetStart + ':' + d.targetEnd);
+
+          // draw link to target region on same track
+          group.append('path')
+            .attr('class', 'link')
+            .attr('d', linkPath(linkObjects))
+            .style({fill: priv.scale.linkColor(normaliseScore(d.score))})
+            .attr('title', 'score: '+d.score);
+
+          // bring group to the top on hover
+          group.on('mouseover', function () {
+            var parent = d3.select(this.parentNode),
+                removed = group.classed({'selected': true}).remove();
+            parent.append(function () { return removed.node(); });
+          });
+          group.on('mouseleave', function () {
+            group.classed({'selected': false});
+          });
+        }
+
         // draw track
         context.append('rect')
           .attr('class', 'base')
@@ -106,7 +160,7 @@ var htd3 = (function () {
         associations.enter()
           .append('g')
           .attr('class', 'association')
-          .each(function (d, i) { drawAssociation.bind(this)(d, i, min, max); });
+          .each(drawAssociation);
 
         // fade in
         associations
@@ -145,57 +199,6 @@ var htd3 = (function () {
           + 'L' + right.x0 + ',0 '   // line from target right to left
           + 'A1,' + ry + ' 0 0,0 '   // radius x/y, axis rotation, large-arc-flag, sweep-flag
           + left.x1  + ",0 z";       // target of inner arc
-      }
-
-      // draw an association between two regions
-      function drawAssociation (d, i, min, max) {
-        // prepare data structure for link rendering
-        var group = d3.select(this),
-            normalised_score,
-            linkObjects = {
-              source: {
-                x0: priv.scale.x(d.start),
-                x1: priv.scale.x(d.end)
-              },
-              target: {
-                x0: priv.scale.x(d.targetStart),
-                x1: priv.scale.x(d.targetEnd)
-              }
-            };
-
-        // draw region rectangle
-        group.append('rect')
-          .attr('class', 'region source')
-          .attr('height', settings.trackHeight)
-          .attr('width', priv.scale.x(d.end) - priv.scale.x(d.start))
-          .attr('x', priv.scale.x(d.start))
-          .attr('title', 'source: ' + d.start + ':' + d.end);
-
-        // draw target rectangle
-        group.append('rect')
-          .attr('class', 'region target')
-          .attr('height', settings.trackHeight)
-          .attr('width', priv.scale.x(d.targetEnd) - priv.scale.x(d.targetStart))
-          .attr('x', priv.scale.x(d.targetStart))
-          .attr('title', 'target: ' + d.targetStart + ':' + d.targetEnd);
-
-        // draw link to target region on same track
-        normalised_score = (d.score - min) / (max - min);
-        group.append('path')
-          .attr('class', 'link')
-          .attr('d', linkPath(linkObjects))
-          .style({fill: priv.scale.linkColor(normalised_score)})
-          .attr('title', 'score: '+d.score);
-
-        // bring group to the top on hover
-        group.on('mouseover', function () {
-          var parent = d3.select(this.parentNode),
-              removed = group.classed({'selected': true}).remove();
-          parent.append(function () { return removed.node(); });
-        });
-        group.on('mouseleave', function () {
-          group.classed({'selected': false});
-        });
       }
 
       // return actual render function
