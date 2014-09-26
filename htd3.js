@@ -83,9 +83,9 @@ var htd3 = (function () {
 
         // draw track
         context.append('rect')
+          .attr('class', 'base')
           .attr('height', settings.trackHeight)
           .attr('width', '100%')
-          .attr('class', 'base')
           .attr('title', d.key);
 
         // append track name
@@ -102,7 +102,8 @@ var htd3 = (function () {
               .data(d.values);
 
         associations.enter()
-          .append('g').attr('class', 'association')
+          .append('g')
+          .attr('class', 'association')
           .each(drawAssociation);
 
         // fade in
@@ -162,10 +163,10 @@ var htd3 = (function () {
 
         // draw region rectangle
         group.append('rect')
+          .attr('class', 'region source')
           .attr('height', settings.trackHeight)
           .attr('width', priv.scale.x(d.end) - priv.scale.x(d.start))
           .attr('x', priv.scale.x(d.start))
-          .attr('class', 'region source')
           .attr('title', 'source: ' + d.start + ':' + d.end);
 
         // draw target rectangle
@@ -329,7 +330,8 @@ var htd3 = (function () {
     self.bind_data = function (data) {
       priv.store(data);
       chart
-        .append('g').attr('class', 'data')
+        .append('g')
+        .attr('class', 'data')
         .selectAll('g')
         .data(self.data.records)
         .call(priv.render);
