@@ -79,7 +79,9 @@ var htd3 = (function () {
       function drawTrack (d, i) {
         var context = d3.select(this),
             computedHeight,
-            y;
+            y,
+            min = d3.min(self.data.scores),
+            max = d3.max(self.data.scores);
 
         // draw track
         context.append('rect')
@@ -104,7 +106,7 @@ var htd3 = (function () {
         associations.enter()
           .append('g')
           .attr('class', 'association')
-          .each(drawAssociation);
+          .each(function (d, i) { drawAssociation.bind(this)(d, i, min, max); });
 
         // fade in
         associations
@@ -146,7 +148,7 @@ var htd3 = (function () {
       }
 
       // draw an association between two regions
-      function drawAssociation (d, i) {
+      function drawAssociation (d, i, min, max) {
         // prepare data structure for link rendering
         var group = d3.select(this),
             normalised_score,
@@ -178,7 +180,7 @@ var htd3 = (function () {
           .attr('title', 'target: ' + d.targetStart + ':' + d.targetEnd);
 
         // draw link to target region on same track
-        normalised_score = (d.score - d3.min(self.data.scores)) / (d3.max(self.data.scores) - d3.min(self.data.scores));
+        normalised_score = (d.score - min) / (max - min);
         group.append('path')
           .attr('class', 'link')
           .attr('d', linkPath(linkObjects))
