@@ -97,7 +97,25 @@ var htd3 = (function () {
           .attr('y', settings.trackHeight / 2);
 
         // draw regions with associations for this track
-        d.values.forEach( function (d, i) { drawAssociation(context, d, i); } );
+        var associations = context
+              .selectAll('g.association')
+              .data(d.values);
+
+        associations.enter()
+          .append('g').attr('class', 'association')
+          .each(drawAssociation);
+
+        // fade in
+        associations
+          .attr('opacity', 0)
+          .transition()
+          .delay(function (d, assoc_id) {
+            var del = (assoc_id + 1) * settings.animation.groupDelay + i * settings.animation.trackDelay;
+            return del;
+          })
+          .duration(500)
+          .attr('opacity', 1);
+
 
         // adjust vertical position based on computed track height
         computedHeight = context.node().getBBox().y;
@@ -127,9 +145,9 @@ var htd3 = (function () {
       }
 
       // draw an association between two regions
-      function drawAssociation (track, d, i) {
+      function drawAssociation (d, i) {
         // prepare data structure for link rendering
-        var group = track.append('g').attr('class', 'association'),
+        var group = d3.select(this),
             normalised_score,
             linkObjects = {
               source: {
@@ -141,9 +159,6 @@ var htd3 = (function () {
                 x1: priv.scale.x(d.targetEnd)
               }
             };
-
-        // hide group initially
-        group.attr('opacity', 0);
 
         // draw region rectangle
         group.append('rect')
@@ -169,16 +184,11 @@ var htd3 = (function () {
           .style({fill: priv.scale.linkColor(normalised_score)})
           .attr('title', 'score: '+d.score);
 
-        // fade in
-        group
-          .transition()
-          .duration((i + 1) * settings.animation.groupDelay)
-          .attr('opacity', 1);
-
         // bring group to the top on hover
         group.on('mouseover', function () {
-          var removed = group.classed({'selected': true}).remove();
-          track.append(function () { return removed.node(); });
+          var parent = d3.select(this.parentNode),
+              removed = group.classed({'selected': true}).remove();
+          parent.append(function () { return removed.node(); });
         });
         group.on('mouseleave', function () {
           group.classed({'selected': false});
@@ -225,8 +235,6 @@ var htd3 = (function () {
           .enter()
           .append("g")
           .attr('class', 'track')
-          .transition()
-          .delay(function (d, i) { return i * settings.animation.trackDelay; })
           .each(drawTrack);
 
         // process exiting data
