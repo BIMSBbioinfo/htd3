@@ -80,8 +80,8 @@ var htd3 = (function () {
         var context = d3.select(this),
             computedHeight,
             y,
-            min = d3.min(self.data.scores),
-            max = d3.max(self.data.scores);
+            min = self.data.scores_min,
+            max = self.data.scores_max;
 
         function normaliseScore (score) {
           return (score - min) / (max - min);
@@ -216,7 +216,7 @@ var htd3 = (function () {
             .domain(d3.scale.linear().ticks(settings.colors.score.length))
             .range(settings.colors.score),
           x: (function () {
-            var extent = d3.extent(self.data.x),
+            var extent = self.data.x_extent,
                 padded_extent = [ extent[0] - settings.paddingX,
                                   extent[1] + settings.paddingX ];
 
@@ -256,9 +256,7 @@ var htd3 = (function () {
                 .tickSize(5, 10));
 
         // draw legend
-        var min = d3.min(self.data.scores),
-            max = d3.max(self.data.scores);
-        chart.call(drawLegend, min, max);
+        chart.call(drawLegend, self.data.scores_min, self.data.scores_max);
 
         // recompute height to include axes
         computedHeight = chart.node().getBBox().height;
@@ -285,8 +283,13 @@ var htd3 = (function () {
       self.data.records = groupByTrack(data);
 
       // gather x values and scores for scale
-      self.data.x = d3.merge(data.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; }));
-      self.data.scores = data.map(function (d) { return +d.score; });
+      var xs = d3.merge(data.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; })),
+          scores = data.map(function (d) { return +d.score; }),
+          score_range = d3.extent(scores);
+
+      self.data.x_extent = d3.extent(xs);
+      self.data.scores_min = score_range[0];
+      self.data.scores_max = score_range[1];
 
       return data;
     };
