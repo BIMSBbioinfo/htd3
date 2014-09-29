@@ -202,8 +202,7 @@ var htd3 = (function () {
 
       // return actual render function
       return function (selection) {
-        var graph = selection,
-            computedHeight,
+        var computedHeight,
             boundData;
 
         // abort if no data is bound!
@@ -235,15 +234,10 @@ var htd3 = (function () {
             .ticks(10)
         };
 
-        // process entering data
-        graph
-          .enter()
-          .append("g")
+        // draw tracks for bound data
+        selection
           .attr('class', 'track')
           .each(drawTrack);
-
-        // process exiting data
-        graph.exit().remove();
 
         // draw grid and axis
         computedHeight = chart.node().getBBox().height + 2 * settings.paddingY;
@@ -316,7 +310,7 @@ var htd3 = (function () {
       self.settings(settings);
 
       // render data
-      chart.select('g.data').selectAll('g').call(priv.render);
+      chart.selectAll('g').call(priv.render);
 
       return self;
     };
@@ -335,11 +329,11 @@ var htd3 = (function () {
     // create a data group containing one group for each data item; then render
     self.bind_data = function (data) {
       priv.store(data);
-      chart
-        .append('g')
-        .attr('class', 'data')
+      var tracks = chart
         .selectAll('g')
-        .data(self.data.records)
+        .data(self.data.records);
+
+      tracks.enter().append('g')
         .call(priv.render);
       return self;
     };
