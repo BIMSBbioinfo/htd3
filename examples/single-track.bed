@@ -1,0 +1,8 @@
+chr	start	end	targetChr	targetStart	targetEnd	associationScore
+chr1	23	35	chr1	400	401	12
+chr1	300	320	chr1	400	401	5
+chr1	450	480	chr1	400	401	10
+chr1	50	62	chr1	20	21	7
+chr1	510	520	chr1	220	280	3
+chr1	850	880	chr1	611	615	9
+chr1	632	660	chr1	745	755	21
