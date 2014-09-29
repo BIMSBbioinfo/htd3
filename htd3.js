@@ -311,6 +311,9 @@ var htd3 = (function () {
       tracks.enter()
         .append('g')
         .call(priv.render);
+
+      tracks.exit().remove();
+
       return self;
     };
 
