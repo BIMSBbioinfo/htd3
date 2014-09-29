@@ -317,9 +317,7 @@ var htd3 = (function () {
       return self;
     };
 
-    // create a data group containing one group for each data item; then render
-    self.bind_data = function (data) {
-      chart.data([data]);
+    self.refresh = function () {
       chart.call(priv.render);
       return self;
     };
@@ -351,7 +349,8 @@ var htd3 = (function () {
       function postProcessing (data) {
         store(data);
         data = groupByTrack(data);
-        self.bind_data(data);
+        chart.data([data]);
+        self.refresh();
       };
 
       if (typeof(url_or_data) === 'object') {
