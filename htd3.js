@@ -235,6 +235,10 @@ var htd3 = (function () {
           .each(drawTrack);
 
         // draw grid and axis
+        chart.select('g.grid').remove();
+        chart.select('g.axis').remove();
+        chart.select('g.legend').remove();
+
         computedHeight = chart.node().getBBox().height + 2 * settings.paddingY;
 
         chart.append("g")
