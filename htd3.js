@@ -29,8 +29,6 @@ var htd3 = (function () {
 
     // private functions
     priv.render = (function () {
-      var trackOffset = 0;
-
       function drawLegend (selection, min, max) {
         var legend = selection.append('g').attr('class', 'legend'),
             gradientId,
@@ -76,7 +74,7 @@ var htd3 = (function () {
       }
 
       // draw track with all associations
-      function drawTrack (d, i) {
+      function drawTrack (d, i, trackOffset) {
         var context = d3.select(this),
             computedHeight,
             y,
@@ -178,6 +176,7 @@ var htd3 = (function () {
         y = -computedHeight + trackOffset + settings.paddingY;
         context.attr('transform', 'translate(0,'+ y +')');
         trackOffset = y;
+        return trackOffset;
       }
 
       // generate link path
@@ -203,7 +202,7 @@ var htd3 = (function () {
       // return actual render function
       return function (selection) {
         var computedHeight,
-            boundData;
+            trackOffset = 0;
 
         // update axes and scales
         priv.scale = {
@@ -230,9 +229,16 @@ var htd3 = (function () {
         };
 
         // draw tracks for bound data
-        selection
-          .attr('class', 'track')
-          .each(drawTrack);
+        // TODO: this is a bit ugly.
+        // - get the data from the selection and bind it to tracks
+        // - draw each track.  This returns the new track offset,
+        //   which is used to draw the next track.
+        var tracks = chart
+              .selectAll('g.track')
+              .data(selection.data()[0]);
+        tracks.enter().append('g').attr('class', 'track');
+        tracks.exit().remove();
+        tracks.each(function (d, i) { trackOffset = drawTrack.bind(this)(d, i, trackOffset); });
 
         // draw grid and axis
         chart.select('g.grid').remove();
@@ -304,16 +310,8 @@ var htd3 = (function () {
 
     // create a data group containing one group for each data item; then render
     self.bind_data = function (data) {
-      var tracks = chart
-            .selectAll('g')
-            .data(data);
-
-      tracks.enter()
-        .append('g')
-        .call(priv.render);
-
-      tracks.exit().remove();
-
+      chart.data([data]);
+      chart.call(priv.render);
       return self;
     };
 
