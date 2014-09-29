@@ -271,21 +271,6 @@ var htd3 = (function () {
       };
     })();
 
-    priv.store = function (data) {
-      self.data = {};
-
-      // gather x values and scores for scale
-      var xs = d3.merge(data.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; })),
-          scores = data.map(function (d) { return +d.score; }),
-          score_range = d3.extent(scores);
-
-      self.data.x_extent = d3.extent(xs);
-      self.data.scores_min = score_range[0];
-      self.data.scores_max = score_range[1];
-
-      return data;
-    };
-
     // convert some fields to numbers
     priv.converter = function (d) {
       return {
@@ -341,8 +326,23 @@ var htd3 = (function () {
           .entries(rows);
       };
 
+      function store (data) {
+        self.data = {};
+
+        // gather x values and scores for scale
+        var xs = d3.merge(data.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; })),
+            scores = data.map(function (d) { return +d.score; }),
+            score_range = d3.extent(scores);
+
+        self.data.x_extent = d3.extent(xs);
+        self.data.scores_min = score_range[0];
+        self.data.scores_max = score_range[1];
+
+        return data;
+      };
+
       function postProcessing (data) {
-        priv.store(data);
+        store(data);
         data = groupByTrack(data);
         self.bind_data(data);
       };
