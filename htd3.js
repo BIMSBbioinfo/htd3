@@ -301,10 +301,11 @@ var htd3 = (function () {
     // create a data group containing one group for each data item; then render
     self.bind_data = function (data) {
       var tracks = chart
-        .selectAll('g')
-        .data(data);
+            .selectAll('g')
+            .data(data);
 
-      tracks.enter().append('g')
+      tracks.enter()
+        .append('g')
         .call(priv.render);
       return self;
     };
