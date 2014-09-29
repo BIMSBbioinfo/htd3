@@ -272,15 +272,7 @@ var htd3 = (function () {
     })();
 
     priv.store = function (data) {
-      // group rows by "chr" column
-      function groupByTrack (rows) {
-        return d3.nest()
-          .key(function (d) { return d.chr; })
-          .entries(rows);
-      };
-
       self.data = {};
-      self.data.records = groupByTrack(data);
 
       // gather x values and scores for scale
       var xs = d3.merge(data.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; })),
@@ -331,24 +323,35 @@ var htd3 = (function () {
 
     // create a data group containing one group for each data item; then render
     self.bind_data = function (data) {
-      priv.store(data);
       var tracks = chart
         .selectAll('g')
-        .data(self.data.records);
+        .data(data);
 
       tracks.enter().append('g')
         .call(priv.render);
       return self;
     };
 
-
     // load tab-separated data from URL or JSON array
     self.load = function (url_or_data) {
+      // group rows by "chr" column
+      function groupByTrack (rows) {
+        return d3.nest()
+          .key(function (d) { return d.chr; })
+          .entries(rows);
+      };
+
+      function postProcessing (data) {
+        priv.store(data);
+        data = groupByTrack(data);
+        self.bind_data(data);
+      };
+
       if (typeof(url_or_data) === 'object') {
-        return self.bind_data(url_or_data);
+        postProcessing(url_or_data);
       } else {
         // fetch file from URL, convert data and bind grouped data
-        d3.tsv(url_or_data, priv.converter, self.bind_data);
+        d3.tsv(url_or_data, priv.converter, postProcessing);
       }
 
       return self;
