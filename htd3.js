@@ -205,11 +205,6 @@ var htd3 = (function () {
         var computedHeight,
             boundData;
 
-        // abort if no data is bound!
-        if (self.data === undefined) {
-          return self;
-        }
-
         // update axes and scales
         priv.scale = {
           linkColor: d3.scale.linear()
@@ -288,9 +283,6 @@ var htd3 = (function () {
     function self (selection) {
       // initialise settings
       self.settings(settings);
-
-      // render data
-      chart.selectAll('g').call(priv.render);
 
       return self;
     };
