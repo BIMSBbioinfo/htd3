@@ -100,6 +100,10 @@ var htd3 = (function () {
                 }
               };
 
+          // clear existing stuff
+          group.selectAll('rect.region').remove();
+          group.selectAll('path.link').remove();
+
           // draw region rectangle
           group.append('rect')
             .attr('class', 'region source')
@@ -134,6 +138,10 @@ var htd3 = (function () {
           });
         }
 
+        // clear existing stuff
+        context.selectAll('rect.base').remove();
+        context.selectAll('text').remove();
+
         // draw track
         context.append('rect')
           .attr('class', 'base')
@@ -156,8 +164,9 @@ var htd3 = (function () {
 
         associations.enter()
           .append('g')
-          .attr('class', 'association')
-          .each(drawAssociation);
+          .attr('class', 'association');
+        associations.exit().remove();
+        associations.each(drawAssociation);
 
         // fade in
         associations
