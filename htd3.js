@@ -73,7 +73,7 @@ var htd3 = (function () {
           .attr('y', settings.legendHeight / 2);
       }
 
-      // draw track with all associations
+      // draw associations and adjust track height
       function drawTrack (d, i, trackOffset) {
         var context = d3.select(this),
             computedHeight,
@@ -246,7 +246,11 @@ var htd3 = (function () {
               .selectAll('g.track')
               .data(selection.data()[0]);
         tracks.enter().append('g').attr('class', 'track');
+
+        // remove exiting tracks
         tracks.exit().remove();
+
+        // update all tracks
         tracks.each(function (d, i) { trackOffset = drawTrack.bind(this)(d, i, trackOffset); });
 
         // draw grid and axis
