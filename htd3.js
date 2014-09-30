@@ -74,7 +74,23 @@ var htd3 = (function () {
       }
 
       // draw associations and adjust track height
-      function drawTrack (d, i, trackOffset) {
+      function drawTrack (d, i) {
+        var context = d3.select(this);
+        // draw track
+        context.append('rect')
+          .attr('class', 'base')
+          .attr('height', settings.trackHeight)
+          .attr('width', '100%');
+
+        // label track
+        context.append('text')
+          .attr('font-size', settings.trackHeight * 0.8)
+          .attr('dominant-baseline', 'middle')
+          .attr('x', 3)
+          .attr('y', settings.trackHeight / 2);
+      }
+
+      function updateTrack (d, i, trackOffset) {
         var context = d3.select(this),
             computedHeight,
             y,
@@ -229,30 +245,14 @@ var htd3 = (function () {
               .data(function (d, i) { return d; });
 
         // deal with new tracks
-        tracks.enter().append('g').attr('class', 'track')
-          .each(function (d, i) {
-            var context = d3.select(this);
-            // draw track
-            context.append('rect')
-              .attr('class', 'base')
-              .attr('height', settings.trackHeight)
-              .attr('width', '100%');
-
-            // label track
-            context.append('text')
-              .attr('font-size', settings.trackHeight * 0.8)
-              .attr('dominant-baseline', 'middle')
-              .attr('x', 3)
-              .attr('y', settings.trackHeight / 2);
-          });
+        tracks.enter().append('g').attr('class', 'track').each(drawTrack);
 
         // remove exiting tracks
         tracks.exit().remove();
 
-        // Update all tracks:
         // Draw the contents of each track.  This returns the new track offset,
         // which is used to draw the next track.
-        tracks.each(function (d, i) { trackOffset = drawTrack.bind(this)(d, i, trackOffset); });
+        tracks.each(function (d, i) { trackOffset = updateTrack.bind(this)(d, i, trackOffset); });
 
         // draw grid and axis
         chart.select('g.grid').remove();
