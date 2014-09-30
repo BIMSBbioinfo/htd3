@@ -223,13 +223,10 @@ var htd3 = (function () {
         };
 
         // draw tracks for bound data
-        // TODO: this is a bit ugly.
-        // - get the data from the selection and bind it to tracks
-        // - draw each track.  This returns the new track offset,
-        //   which is used to draw the next track.
-        var tracks = chart
+        // pass the bound data on to g.track elements
+        var tracks = selection
               .selectAll('g.track')
-              .data(selection.data()[0]);
+              .data(function (d, i) { return d; });
 
         // deal with new tracks
         tracks.enter().append('g').attr('class', 'track')
@@ -252,7 +249,9 @@ var htd3 = (function () {
         // remove exiting tracks
         tracks.exit().remove();
 
-        // update all tracks
+        // Update all tracks:
+        // Draw the contents of each track.  This returns the new track offset,
+        // which is used to draw the next track.
         tracks.each(function (d, i) { trackOffset = drawTrack.bind(this)(d, i, trackOffset); });
 
         // draw grid and axis
@@ -323,8 +322,12 @@ var htd3 = (function () {
       return self;
     };
 
-    self.refresh = function () {
-      chart.call(priv.render);
+    self.refresh = function (selection) {
+      if (selection == undefined) {
+        chart.call(priv.render);
+      } else {
+        selection.call(priv.render);
+      }
       return self;
     };
 
@@ -355,8 +358,7 @@ var htd3 = (function () {
       function postProcessing (data) {
         store(data);
         data = groupByTrack(data);
-        chart.data([data]);
-        self.refresh();
+        self.refresh(chart.data([data]));
       };
 
       if (typeof(url_or_data) === 'object') {
