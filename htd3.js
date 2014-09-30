@@ -138,24 +138,9 @@ var htd3 = (function () {
           });
         }
 
-        // clear existing stuff
-        context.selectAll('rect.base').remove();
-        context.selectAll('text').remove();
-
-        // draw track
-        context.append('rect')
-          .attr('class', 'base')
-          .attr('height', settings.trackHeight)
-          .attr('width', '100%')
-          .attr('title', d.key);
-
-        // append track name
-        context.append('text')
-          .text(d.key)
-          .attr('font-size', settings.trackHeight * 0.8)
-          .attr('dominant-baseline', 'middle')
-          .attr('x', 3)
-          .attr('y', settings.trackHeight / 2);
+        // update the title of the track base and the label
+        context.select('rect.base').attr('title', d.key);
+        context.select('text').text(d.key);
 
         // draw regions with associations for this track
         var associations = context
@@ -245,7 +230,24 @@ var htd3 = (function () {
         var tracks = chart
               .selectAll('g.track')
               .data(selection.data()[0]);
-        tracks.enter().append('g').attr('class', 'track');
+
+        // deal with new tracks
+        tracks.enter().append('g').attr('class', 'track')
+          .each(function (d, i) {
+            var context = d3.select(this);
+            // draw track
+            context.append('rect')
+              .attr('class', 'base')
+              .attr('height', settings.trackHeight)
+              .attr('width', '100%');
+
+            // label track
+            context.append('text')
+              .attr('font-size', settings.trackHeight * 0.8)
+              .attr('dominant-baseline', 'middle')
+              .attr('x', 3)
+              .attr('y', settings.trackHeight / 2);
+          });
 
         // remove exiting tracks
         tracks.exit().remove();
