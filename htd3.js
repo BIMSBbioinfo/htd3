@@ -39,7 +39,10 @@ chr1	450	480	predicted	5	10	23
           extent: undefined,
           width: 800,
           paddingX: 50,
-          paddingTick: 15
+          paddingTick: 15,
+          verticalOffset: 15,
+          boxHeight: 15,
+          boxGap: 1
         };
 
     priv.render = function (selection) {
@@ -77,17 +80,14 @@ chr1	450	480	predicted	5	10	23
       function drawScorebox (d, i) {
         var scorebox = d3.select(this),
             column = d3.select(this.parentNode),
-            column_data = column.data()[0],
-            vertical_offset = 15,
-            size = 20,
-            gap = 1;
+            column_data = column.data()[0];
 
         scorebox
           .attr('fill', priv.scale.scoreColor(normaliseScore(d.value)))
-          .attr('height', size)
+          .attr('height', settings.boxHeight)
           .attr('width', priv.scale.x(column_data.end) - priv.scale.x(column_data.start))
           .attr('x', priv.scale.x(column_data.start))
-          .attr('y', vertical_offset + i * (size + gap))
+          .attr('y', settings.verticalOffset + i * (settings.boxHeight + settings.boxGap))
           .attr('title', d.key + ", score: " + d.value);
       }
 
