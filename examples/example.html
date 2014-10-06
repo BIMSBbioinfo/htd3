@@ -87,18 +87,36 @@
         this time called in a more d3js-idiomatic fashion.  This is
         done by creating a selection and calling the chart method on
         it.
+
+        The same selection is reused to add the heatmap visualisation.
+        The settings to the chart are chosen to allow for enough
+        vertical space to draw the heatmap.  Also note that the extent
+        is provided in the settings lest the two visualisations show a
+        different window on the x-axis.
+        If <code>settings.extent</code> is undefined the
+        visualisations will automatically determine the extent of the
+        data.
       </p>
       <pre>
         var settings = {
           width: 1000,
           colors: { score: ['blue', '#ff3300'] },
+          extent: [150, 500],
+          paddingY: 120
         };
 
+        // select the target
         var selection = d3.select('#example3').append('svg');
 
+        // render association arcs
         var example3 = htd3.graphs.associations(selection)
           .settings(settings)
           .load('example.bed');
+
+        // render heatmap into the same chart
+        htd3.graphs.heatmap(selection)
+          .settings(settings)
+          .load('heatmap-example1.dat');
       </pre>
       <div id="example3"></div>
 
@@ -106,13 +124,22 @@
         var settings = {
           width: 1000,
           colors: { score: ['blue', '#ff3300'] },
+          extent: [150, 500],
+          paddingY: 120
         };
 
+        // select the target
         var selection = d3.select('#example3').append('svg');
 
+        // render association arcs
         var example3 = htd3.graphs.associations(selection)
           .settings(settings)
           .load('example.bed');
+
+        // render heatmap into the same chart
+        htd3.graphs.heatmap(selection)
+          .settings(settings)
+          .load('heatmap-example1.dat');
       </script>
     </div>
 
