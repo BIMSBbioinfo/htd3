@@ -1,0 +1,5 @@
+chr	start	end	type	tissue1	tissue2	tissue3
+chr1	230	250	chia-pet	10	1	10.5
+chr1	300	320	chia-pet	1	2	3
+chr1	450	480	chia-pet	3	4	5
+chr2	450	480	chia-pet	3	4	5
