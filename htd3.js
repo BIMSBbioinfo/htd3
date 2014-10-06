@@ -18,6 +18,7 @@ var htd3 = (function () {
           colors: {
             score: ['red', 'black', 'green']
           },
+          extent: undefined,
           legendHeight: 20,
           trackHeight: 15,
           linkRadiusRatio: 0.8,
@@ -220,7 +221,7 @@ var htd3 = (function () {
             .domain(d3.scale.linear().ticks(settings.colors.score.length))
             .range(settings.colors.score),
           x: (function () {
-            var extent = self.data.x_extent,
+            var extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent,
                 padded_extent = [ extent[0] - settings.paddingX,
                                   extent[1] + settings.paddingX ];
 
