@@ -6,6 +6,205 @@ var htd3 = (function () {
   var graphs = {};
 
 
+
+/*
+Data has genomic locations and associated scores for each location
+across multiple tissues. It has also a "type" column which serves as a
+layer; the heatmap will display the selected type only.
+
+There can be any number of columns containing scores; they may have
+arbitrary headers.
+*/
+
+/*
+chr	start	end	type	tissue1	tissue2	tissue3
+chr1	230	250	chia-pet	10	1	10.5
+chr1	300	320	chia-pet	1	2	3
+chr1	450	480	chia-pet	3	4	5
+chr1	230	250	predicted	2	20	6
+chr1	300	320	predicted	12	34	32
+chr1	450	480	predicted	5	10	23
+*/
+
+// TODO: add colour legend
+// TODO: add optional animations
+
+  graphs.heatmap = function (selection) {
+    var priv = {},
+        chart = selection,
+        settings = {
+          colors: {
+            score: ['red', 'black', 'green']
+          },
+          extent: undefined,
+          width: 800,
+          paddingX: 50,
+          paddingTick: 15
+        };
+
+    priv.render = function (selection) {
+      var min = self.data.scores_min,
+          max = self.data.scores_max;
+
+      // update axes and scales
+      priv.scale = {
+        scoreColor: d3.scale.linear()
+          .domain(d3.scale.linear().ticks(settings.colors.score.length))
+          .range(settings.colors.score),
+        x: (function () {
+          var extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent,
+              padded_extent = [ extent[0] - settings.paddingX,
+                                extent[1] + settings.paddingX ];
+
+          return d3.scale.linear()
+            .domain(padded_extent)
+            .range([0, settings.width]);
+        })()
+      };
+
+      priv.axes = {
+        x: d3.svg.axis()
+          .scale(priv.scale.x)
+          .orient("bottom")
+          .tickPadding(settings.paddingTick)
+          .ticks(10)
+      };
+
+      function normaliseScore (score) {
+        return (score - min) / (max - min);
+      };
+
+      function drawScorebox (d, i) {
+        var scorebox = d3.select(this),
+            column = d3.select(this.parentNode),
+            column_data = column.data()[0],
+            vertical_offset = 15,
+            size = 20,
+            gap = 1;
+
+        scorebox
+          .attr('fill', priv.scale.scoreColor(normaliseScore(d.value)))
+          .attr('height', size)
+          .attr('width', priv.scale.x(column_data.end) - priv.scale.x(column_data.start))
+          .attr('x', priv.scale.x(column_data.start))
+          .attr('y', vertical_offset + i * (size + gap))
+          .attr('title', d.key + ", score: " + d.value);
+      }
+
+      var columns = selection.selectAll('g.track')
+            .data(function (d, i) { return d; })
+            .selectAll('g.heatcolumn')
+            .data(function (d, i) { return d.values; });
+      columns.enter().append('g').attr('class', 'heatcolumn');
+      columns.exit().remove();
+
+      var scoreboxes = columns
+            .selectAll('rect.scorebox')
+            .data(function (d, i) { return d3.entries(d.scores); });
+      scoreboxes.enter().append('rect').attr('class', 'scorebox');
+      scoreboxes.exit().remove();
+      scoreboxes.each(drawScorebox);
+    };
+
+    // public functions
+    function self (selection) {
+      // initialise settings
+      self.settings(settings);
+
+      return self;
+    };
+
+    // chainable getter / setter for settings
+    self.settings = function (newSettings) {
+      if (!arguments.length) return settings;
+
+      for (var attrname in newSettings) {
+        settings[attrname] = newSettings[attrname];
+      };
+
+      return self;
+    };
+
+    self.refresh = function (selection) {
+      if (selection == undefined) {
+        chart.call(priv.render);
+      } else {
+        selection.call(priv.render);
+      }
+      return self;
+    };
+
+    // load tab-separated data from URL or JSON array
+    self.load = function (url_or_data) {
+      // TODO: filter by type before bind; we only display one type at one time
+      var converter = (function () {
+        var header = "";
+        return function (row, i) {
+          if (i === 0) {
+            header = row;
+            return null;
+          } else {
+            return {
+              chr:    row.shift(),
+              start: +row.shift(),
+              end:   +row.shift(),
+              type:   row.shift(),
+              scores: row.reduce(function (acc, score, i) {
+                acc[header[i+4]] = +score;
+                return acc;
+              }, {})
+            };
+          };
+        };
+      })();
+
+      // group rows by "chr" column
+      function groupByTrack (rows) {
+        return d3.nest()
+          .key(function (d) { return d.chr; })
+          .entries(rows);
+      };
+
+      function store (data) {
+        self.data = {};
+
+        // gather x values and scores for scale
+        var xs = d3.merge(data.map(function (d) { return [+d.start, +d.end]; })),
+            scores = d3.merge(data.map(function (d) { return d3.values(d.scores); })),
+            score_range = d3.extent(scores);
+
+        self.data.x_extent = d3.extent(xs);
+        self.data.scores_min = score_range[0];
+        self.data.scores_max = score_range[1];
+
+        return data;
+      };
+
+      function postProcessing (data) {
+        store(data);
+        data = groupByTrack(data);
+        self.refresh(chart.data([data]));
+      };
+
+      if (typeof(url_or_data) === 'object') {
+        postProcessing(url_or_data);
+      } else {
+        // fetch file from URL, convert data and bind grouped data
+        d3.xhr(url_or_data, "text/plain", function (response) {
+          var contents = response.responseText;
+          var rows = d3.tsv.parseRows(contents, converter);
+          console.log(rows);
+          postProcessing(rows);
+        });
+      }
+
+      return self;
+    };
+
+    return self(selection);
+  };
+
+
   // visualisation of associations between regions
   graphs.associations = function (selection) {
     var priv = {},
