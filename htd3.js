@@ -490,19 +490,6 @@ chr1	450	480	predicted	5	10	23
       };
     })();
 
-    // convert some fields to numbers
-    priv.converter = function (d) {
-      return {
-        chr:          d.chr,
-        start:       +d.start,
-        end:         +d.end,
-        targetChr:    d.targetChr,
-        targetStart: +d.targetStart,
-        targetEnd:   +d.targetEnd,
-        score:       +d.associationScore
-      };
-    };
-
     // public functions
     function self (selection) {
       // initialise settings
@@ -533,6 +520,19 @@ chr1	450	480	predicted	5	10	23
 
     // load tab-separated data from URL or JSON array
     self.load = function (url_or_data) {
+      // convert some fields to numbers
+      function converter (d) {
+        return {
+          chr:          d.chr,
+          start:       +d.start,
+          end:         +d.end,
+          targetChr:    d.targetChr,
+          targetStart: +d.targetStart,
+          targetEnd:   +d.targetEnd,
+          score:       +d.associationScore
+        };
+      };
+
       // group rows by "chr" column
       function groupByTrack (rows) {
         return d3.nest()
@@ -565,7 +565,7 @@ chr1	450	480	predicted	5	10	23
         postProcessing(url_or_data);
       } else {
         // fetch file from URL, convert data and bind grouped data
-        d3.tsv(url_or_data, priv.converter, postProcessing);
+        d3.tsv(url_or_data, converter, postProcessing);
       }
 
       return self;
