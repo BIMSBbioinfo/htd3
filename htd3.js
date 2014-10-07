@@ -194,7 +194,6 @@ chr1	450	480	predicted	5	10	23
         d3.xhr(url_or_data, "text/plain", function (response) {
           var contents = response.responseText;
           var rows = d3.tsv.parseRows(contents, converter);
-          console.log(rows);
           postProcessing(rows);
         });
       }
