@@ -31,8 +31,7 @@ chr1	450	480	predicted	5	10	23
 // TODO: bind data to layer inside each track, because binding to tracks themselves breaks refresh
 
   graphs.heatmap = function (selection) {
-    var priv = {},
-        chart = selection,
+    var chart = selection,
         settings = {
           colors: {
             score: ['red', 'black', 'green']
@@ -46,8 +45,9 @@ chr1	450	480	predicted	5	10	23
           boxGap: 1
         };
 
-    priv.render = function (selection) {
-      var min = self.data.scores_min,
+    self.render = function (selection) {
+      var priv = {},
+          min = self.data.scores_min,
           max = self.data.scores_max;
 
       // update axes and scales
@@ -128,9 +128,9 @@ chr1	450	480	predicted	5	10	23
 
     self.refresh = function (selection) {
       if (selection == undefined) {
-        chart.call(priv.render);
+        chart.call(self.render);
       } else {
-        selection.call(priv.render);
+        selection.call(self.render);
       }
       return self;
     };
@@ -207,8 +207,7 @@ chr1	450	480	predicted	5	10	23
 
   // visualisation of associations between regions
   graphs.associations = function (selection) {
-    var priv = {},
-        chart = selection,
+    var chart = selection,
         settings = {
           animation: {
             groupDelay: 300,
@@ -228,7 +227,9 @@ chr1	450	480	predicted	5	10	23
         };
 
     // private functions
-    priv.render = (function () {
+    self.render = (function () {
+      var priv = {};
+
       function drawLegend (selection, min, max) {
         var legend = selection.append('g').attr('class', 'legend'),
             gradientId,
@@ -511,9 +512,9 @@ chr1	450	480	predicted	5	10	23
 
     self.refresh = function (selection) {
       if (selection == undefined) {
-        chart.call(priv.render);
+        chart.call(self.render);
       } else {
-        selection.call(priv.render);
+        selection.call(self.render);
       }
       return self;
     };
