@@ -5,6 +5,27 @@ var htd3 = (function () {
   // function initialised with said selection.
   var graphs = {};
 
+  var zoomer = function (element) {
+    return d3.behavior.zoom()
+      .scale(1)
+      .scaleExtent([1, 8.0])
+      .on('zoom', function() {
+        var translation = d3.event.translate;
+        // limit translation to origin at minimum scale
+        if (d3.event.scale === 1) {
+          translation = [ Math.max(0, d3.event.translate[0]),
+                          Math.max(0, d3.event.translate[1])
+                        ];
+        }
+        element
+          .transition()
+          .ease('linear')
+          .duration(100)
+          .attr("transform",
+                "translate(" + translation + ")"+
+                "scale(" + d3.event.scale + ")");
+      });
+  };
 
 
 /*
@@ -111,6 +132,7 @@ chr1	450	480	predicted	5	10	23
     function self (selection) {
       // initialise settings
       self.settings(settings);
+      selection.call(zoomer(chart));
 
       return self;
     };
@@ -495,6 +517,7 @@ chr1	450	480	predicted	5	10	23
     function self (selection) {
       // initialise settings
       self.settings(settings);
+      selection.call(zoomer(chart));
 
       return self;
     };

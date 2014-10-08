@@ -4,7 +4,7 @@
 .htd3.chart {
     height: 100%;
     display: block;
-    overflow: visible;
+    overflow: hidden;
     background: #fafafa;
     margin: 1em; }
 
