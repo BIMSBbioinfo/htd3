@@ -17,6 +17,10 @@
     width: 100%; }
     .htd3 .track .base {
         fill: #eee; }
+    .htd3 .track .strip {
+        fill: #eee; }
+        .htd3 .track .strip .outer {
+            fill: #eee; }
     .htd3 .track .association .link {
         opacity: 0.5; }
     .htd3 .track .association.selected .link {

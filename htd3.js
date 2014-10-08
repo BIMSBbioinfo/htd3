@@ -227,6 +227,193 @@ chr1	450	480	predicted	5	10	23
   };
 
 
+/*chr	start	end	name	score	strand	thickStart	thickEnd	itemRgb	blockCount	blockSizes	blockStarts
+chr11	31487851	31762649	NM_001288726	0	+	31487907	31761553	0	12	279,36,122,132,140,85,189,109,107,289,139,1133,	0,10327,29933,85041,94039,117381,122488,138013,140387,172059,253683,273665,
+chr11	31487851	31762649	NM_001288725	0	+	31487907	31761662	0	11	279,36,122,132,143,85,189,109,107,139,1133,	0,10327,29933,85041,94036,117381,122488,138013,140387,253683,273665,
+chr11	31487851	31762649	NM_019040	0	+	31487907	31761648	0	10	279,36,122,132,140,85,189,109,107,1133,	0,10327,29933,85041,94039,117381,122488,138013,140387,273665,
+chr11	31762915	31789266	NM_001258465	0	-	31768057	31784535	0	12	5228,151,116,151,83,159,166,216,131,61,77,315,	0,5918,8646,8860,9240,9838,15899,16769,17912,21610,22057,26036,
+chr11	31762915	31789477	NM_001258464	0	-	31768057	31784535	0	13	5228,151,116,151,83,159,166,216,131,61,77,188,141,	0,5918,8646,8860,9240,9838,15899,16769,17912,21610,22057,26036,26421,
+chr11	31762915	31790307	NM_001258463	0	-	31768057	31784535	0	14	5228,151,116,151,83,159,166,216,42,131,61,77,188,91,	0,5918,8646,8860,9240,9838,15899,16769,17079,17912,21610,22057,26036,27301,
+chr11	31762915	31796085	NM_001258462	0	-	31768057	31784535	0	14	5228,151,116,151,83,159,166,216,42,131,61,77,188,153,	0,5918,8646,8860,9240,9838,15899,16769,17079,17912,21610,22057,26036,33017,
+chr11	31762915	31796085	NM_001127612	0	-	31768057	31784535	0	13	5228,151,116,151,83,159,166,216,131,61,77,188,153,	0,5918,8646,8860,9240,9838,15899,16769,17912,21610,22057,26036,33017,
+chr11	31762915	31789477	NM_001604	0	-	31768057	31784535	0	14	5228,151,116,151,83,159,166,216,42,131,61,77,188,141,	0,5918,8646,8860,9240,9838,15899,16769,17079,17912,21610,22057,26036,26421,
+chr11	31762915	31789477	NM_000280	0	-	31768057	31784535	0	13	5228,151,116,151,83,159,166,216,131,61,77,188,239,	0,5918,8646,8860,9240,9838,15899,16769,17912,21610,22057,26036,26323,
+chr11	31794689	31865163	NR_033971	0	+	31865163	31865163	0	3	74,81,1501,	0,68726,68973,
+chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
+*/
+  graphs.exonintron = function (selection) {
+    var chart = selection,
+        settings = {
+          extent: undefined,
+          trackHeight: 15,
+          linkRadiusRatio: 0.8,
+          width: 800,
+          paddingX: 50,
+          paddingY: 50,
+          paddingTick: 15
+        };
+
+    // public functions
+    function self (selection) {
+      // initialise settings
+      self.settings(settings);
+      selection.call(zoomer(chart));
+
+      return self;
+    };
+
+    // chainable getter / setter for settings
+    self.settings = function (newSettings) {
+      if (!arguments.length) return settings;
+
+      for (var attrname in newSettings) {
+        settings[attrname] = newSettings[attrname];
+      };
+
+      return self;
+    };
+
+    self.refresh = function (selection) {
+      if (selection == undefined) {
+        chart.call(self.render);
+      } else {
+        selection.call(self.render);
+      }
+      return self;
+    };
+
+    // load tab-separated data from URL or JSON array
+    self.load = function (url_or_data) {
+      // convert some fields to numbers
+      function converter (d) {
+        return {
+          chr:          d.chr,
+          start:       +d.start,
+          end:         +d.end,
+          name:         d.name,
+          thickStart:  +d.thickStart,
+          thickEnd:    +d.thickEnd,
+          blockSizes:   d.blockSizes.split(',').splice(0, +d.blockCount).map(function (d) { return +d; }),
+          blockStarts:  d.blockStarts.split(',').splice(0, +d.blockCount).map(function (d) { return +d; })
+        };
+      };
+
+      // group rows by "chr" column
+      function groupByTrack (rows) {
+        return d3.nest()
+          .key(function (d) { return d.chr; })
+          .entries(rows);
+      };
+
+      function store (data) {
+        self.data = {};
+
+        // gather x values and scores for scale
+        var xs = d3.merge(data.map(function (d) { return [+d.start, +d.end, +d.thickStart, +d.thickEnd]; }));
+        self.data.x_extent = d3.extent(xs);
+        return data;
+      };
+
+      function postProcessing (data) {
+        store(data);
+        data = groupByTrack(data);
+        self.refresh(chart.data([data]));
+      };
+
+      if (typeof(url_or_data) === 'object') {
+        postProcessing(url_or_data);
+      } else {
+        // fetch file from URL, convert data and bind grouped data
+        d3.tsv(url_or_data, converter, postProcessing);
+      }
+
+      return self;
+    };
+
+    self.render = function (selection) {
+      var priv = {},
+          min = self.data.scores_min,
+          max = self.data.scores_max;
+
+      // update axes and scales
+      priv.scale = {
+        x: (function () {
+          var extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent,
+              padded_extent = [ extent[0] - settings.paddingX,
+                                extent[1] + settings.paddingX ];
+
+          console.log(padded_extent);
+          return d3.scale.linear()
+            .domain(padded_extent)
+            .range([0, settings.width]);
+        })()
+      };
+
+      priv.axes = {
+        x: d3.svg.axis()
+          .scale(priv.scale.x)
+          .orient("bottom")
+          .tickPadding(settings.paddingTick)
+          .ticks(10)
+      };
+
+      // draw associations and adjust track height
+      function drawExonIntron (d, i) {
+        console.log('drawing', d);
+        var context = d3.select(this);
+
+        // outer dimensions
+        context.append('rect')
+          .attr('x', priv.scale.x(d.start))
+          .attr('y', i * 26)
+          .attr('width', priv.scale.x(d.end) - priv.scale.x(d.start))
+          .attr('class', 'outer')
+          .attr('height', 25);
+
+        d3.zip(d.blockStarts, d.blockSizes).forEach(function (pair) {
+          var xstart = d.start + pair[0],
+              xend = xstart + pair[1];
+
+          context.append('rect')
+            .attr('x', priv.scale.x(xstart))
+            .attr('y', i * 26)
+            .attr('width', priv.scale.x(xend) - priv.scale.x(xstart))
+            .attr('height', 25)
+            .attr('fill', 'red');
+        });
+      }
+
+
+      // draw tracks for bound data
+      // pass the bound data on to g.track elements
+      var tracks = selection
+            .selectAll('g.track')
+            .data(function (d, i) { return d; });
+      tracks.enter().append('g').attr('class', 'track');
+      tracks.exit().remove();
+
+      // strips containing the actual exon/intron blocks defined in blockSizes/blockStarts
+      var strips = tracks
+            .selectAll('g.strip')
+            .data(function (d, i) { console.log(d.values); return d.values; });
+      strips.enter().append('g').attr('class', 'strip');
+      strips.exit().remove();
+      strips.each(drawExonIntron);
+
+      // TODO: this is the same for all graphs
+      // recompute height
+      var computedHeight = chart.node().getBBox().height;
+
+      // style chart
+      chart
+        .attr('class', 'htd3 chart')
+        .attr('width', settings.width)
+        .attr('height', computedHeight);
+    };
+
+    return self(selection);
+  };
+
   // visualisation of associations between regions
   graphs.associations = function (selection) {
     var chart = selection,
