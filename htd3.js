@@ -63,7 +63,7 @@ var htd3 = (function () {
 
     self.refresh = function (selection) {
       if (selection === undefined) {
-        selection = self.chart;
+        selection = chart;
       }
 
       selection.call(self.render);
@@ -74,7 +74,6 @@ var htd3 = (function () {
     };
 
     // initialise
-    self.chart = chart;
     self.settings(settings);
 
     return self;
