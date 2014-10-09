@@ -36,19 +36,19 @@ var htd3 = (function () {
     return zoom;
   };
 
-  var updateDimensions = function (chart, settings) {
-    // recompute height
-    var computedHeight = chart.node().getBBox().height;
-
-    // style chart
-    chart
-      .attr('class', 'htd3 chart')
-      .attr('width', settings.width)
-      .attr('height', computedHeight);
-  };
-
   function generateSelf (settings, chart) {
     var self = {};
+
+    function updateDimensions () {
+      // recompute height
+      var computedHeight = chart.node().getBBox().height;
+
+      // style chart
+      chart
+        .attr('class', 'htd3 chart')
+        .attr('width', settings.width)
+        .attr('height', computedHeight);
+    };
 
     // chainable getter / setter for settings
     self.settings = function (newSettings) {
@@ -68,7 +68,7 @@ var htd3 = (function () {
 
       selection.call(self.render);
       selection.call(zoomer(chart));
-      updateDimensions(selection, settings);
+      updateDimensions();
 
       return self;
     };
