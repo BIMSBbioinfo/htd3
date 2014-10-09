@@ -7,28 +7,34 @@ var htd3 = (function () {
 
   var zoomer = function (element) {
     var bbox = element.node().getBBox();
-
-    return d3.behavior.zoom()
+    var zoom = d3.behavior.zoom()
       .scale(1)
       .scaleExtent([1, 8.0])
-      .size([bbox.width, bbox.height])
-      .on('zoom', function() {
-        var translation = d3.event.translate,
-            scale = d3.event.scale;
+      .size([bbox.width, bbox.height]);
 
-        // reset viewport at scale 1
-        if (scale === 1) {
-          translation = [ 0, 0 ];
-        }
+    zoom.on('zoom', function() {
+      var translation = d3.event.translate,
+          scale = d3.event.scale;
 
-        element
-          .transition()
-          .ease('linear')
-          .duration(200)
-          .attr("transform",
-                "translate(" + translation + ")"+
-                "scale(" + scale + ")");
-      });
+      // reset viewport at scale 1
+      if (scale === 1) {
+        translation = [ 0, 0 ];
+      }
+
+      // keep translation in sync
+      zoom.translate(translation);
+
+      element
+        .transition()
+        .ease('linear')
+        .duration(200)
+        .attr("transform",
+              "translate(" + translation + ")"+
+              "scale(" + scale + ")");
+    });
+
+    return zoom;
+  };
   };
 
 
