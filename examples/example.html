@@ -143,5 +143,31 @@
       </script>
     </div>
 
+    <div class="example">
+      <h1>Exon Intron display</h1>
+
+      <p>
+        TODO
+      </p>
+      <pre>
+        // select the target
+        var selection = d3.select('#example-exonintron').append('svg');
+
+        // render exon intron graph
+        var example3 = htd3.graphs.exonintron(selection)
+          .load('refseq.example.bed');
+      </pre>
+      <div id="example-exonintron"></div>
+
+      <script type="text/javascript">
+        // select the target
+        var selection = d3.select('#example-exonintron').append('svg');
+
+        // render exon intron graph
+        var example3 = htd3.graphs.exonintron(selection)
+          .load('refseq.example.bed');
+      </script>
+    </div>
+
   </body>
 </html>
