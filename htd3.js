@@ -24,7 +24,7 @@ var htd3 = (function () {
         element
           .transition()
           .ease('linear')
-          .duration(100)
+          .duration(200)
           .attr("transform",
                 "translate(" + translation + ")"+
                 "scale(" + scale + ")");
