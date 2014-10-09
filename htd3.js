@@ -63,11 +63,10 @@ var htd3 = (function () {
 
     self.refresh = function (selection) {
       if (selection === undefined) {
-        chart.call(self.render);
-      } else {
-        selection.call(self.render);
+        selection = self.chart;
       }
 
+      selection.call(self.render);
       selection.call(zoomer(chart));
       return self;
     };
