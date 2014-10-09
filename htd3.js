@@ -6,9 +6,12 @@ var htd3 = (function () {
   var graphs = {};
 
   var zoomer = function (element) {
+    var bbox = element.node().getBBox();
+
     return d3.behavior.zoom()
       .scale(1)
       .scaleExtent([1, 8.0])
+      .size([bbox.width, bbox.height])
       .on('zoom', function() {
         var translation = d3.event.translate,
             scale = d3.event.scale;
@@ -133,7 +136,6 @@ chr1	450	480	predicted	5	10	23
     function self (selection) {
       // initialise settings
       self.settings(settings);
-      selection.call(zoomer(chart));
 
       return self;
     };
@@ -155,6 +157,8 @@ chr1	450	480	predicted	5	10	23
       } else {
         selection.call(self.render);
       }
+
+      selection.call(zoomer(chart));
       return self;
     };
 
@@ -258,7 +262,6 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
     function self (selection) {
       // initialise settings
       self.settings(settings);
-      selection.call(zoomer(chart));
 
       return self;
     };
@@ -280,6 +283,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       } else {
         selection.call(self.render);
       }
+
+      selection.call(zoomer(chart));
       return self;
     };
 
@@ -705,7 +710,6 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
     function self (selection) {
       // initialise settings
       self.settings(settings);
-      selection.call(zoomer(chart));
 
       return self;
     };
@@ -727,6 +731,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       } else {
         selection.call(self.render);
       }
+
+      selection.call(zoomer(chart));
       return self;
     };
 
