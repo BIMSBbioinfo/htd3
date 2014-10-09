@@ -46,7 +46,39 @@ var htd3 = (function () {
       .attr('width', settings.width)
       .attr('height', computedHeight);
   };
+
+  function generateSelf (settings, chart) {
+    var self = {};
+
+    // chainable getter / setter for settings
+    self.settings = function (newSettings) {
+      if (!arguments.length) return settings;
+
+      for (var attrname in newSettings) {
+        settings[attrname] = newSettings[attrname];
+      };
+
+      return self;
+    };
+
+    self.refresh = function (selection) {
+      if (selection === undefined) {
+        chart.call(self.render);
+      } else {
+        selection.call(self.render);
+      }
+
+      selection.call(zoomer(chart));
+      return self;
+    };
+
+    // initialise
+    self.chart = chart;
+    self.settings(settings);
+
+    return self;
   };
+
 
 
 /*
@@ -86,6 +118,9 @@ chr1	450	480	predicted	5	10	23
           boxHeight: 15,
           boxGap: 1
         };
+
+
+    var self = generateSelf(settings, selection);
 
     self.render = function (selection) {
       var priv = {},
@@ -150,36 +185,6 @@ chr1	450	480	predicted	5	10	23
 
       // TODO: this is the same for all graphs
       updateDimensions(chart, settings);
-    };
-
-    // public functions
-    function self (selection) {
-      // initialise settings
-      self.settings(settings);
-
-      return self;
-    };
-
-    // chainable getter / setter for settings
-    self.settings = function (newSettings) {
-      if (!arguments.length) return settings;
-
-      for (var attrname in newSettings) {
-        settings[attrname] = newSettings[attrname];
-      };
-
-      return self;
-    };
-
-    self.refresh = function (selection) {
-      if (selection == undefined) {
-        chart.call(self.render);
-      } else {
-        selection.call(self.render);
-      }
-
-      selection.call(zoomer(chart));
-      return self;
     };
 
     // load tab-separated data from URL or JSON array
@@ -248,7 +253,7 @@ chr1	450	480	predicted	5	10	23
       return self;
     };
 
-    return self(selection);
+    return self;
   };
 
 
@@ -278,35 +283,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           paddingTick: 15
         };
 
-    // public functions
-    function self (selection) {
-      // initialise settings
-      self.settings(settings);
-
-      return self;
-    };
-
-    // chainable getter / setter for settings
-    self.settings = function (newSettings) {
-      if (!arguments.length) return settings;
-
-      for (var attrname in newSettings) {
-        settings[attrname] = newSettings[attrname];
-      };
-
-      return self;
-    };
-
-    self.refresh = function (selection) {
-      if (selection == undefined) {
-        chart.call(self.render);
-      } else {
-        selection.call(self.render);
-      }
-
-      selection.call(zoomer(chart));
-      return self;
-    };
+    var self = generateSelf(settings, selection);
 
     // load tab-separated data from URL or JSON array
     self.load = function (url_or_data) {
@@ -428,7 +405,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       updateDimensions(chart, settings);
     };
 
-    return self(selection);
+    return self;
   };
 
   // visualisation of associations between regions
@@ -451,6 +428,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           paddingY: 50,
           paddingTick: 15
         };
+
+    var self = generateSelf(settings, selection);
 
     // private functions
     self.render = (function () {
@@ -710,36 +689,6 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       };
     })();
 
-    // public functions
-    function self (selection) {
-      // initialise settings
-      self.settings(settings);
-
-      return self;
-    };
-
-    // chainable getter / setter for settings
-    self.settings = function (newSettings) {
-      if (!arguments.length) return settings;
-
-      for (var attrname in newSettings) {
-        settings[attrname] = newSettings[attrname];
-      };
-
-      return self;
-    };
-
-    self.refresh = function (selection) {
-      if (selection == undefined) {
-        chart.call(self.render);
-      } else {
-        selection.call(self.render);
-      }
-
-      selection.call(zoomer(chart));
-      return self;
-    };
-
     // load tab-separated data from URL or JSON array
     self.load = function (url_or_data) {
       // convert some fields to numbers
@@ -793,7 +742,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       return self;
     };
 
-    return self(selection);
+    return self;
   };
 
 
