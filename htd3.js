@@ -68,6 +68,8 @@ var htd3 = (function () {
 
       selection.call(self.render);
       selection.call(zoomer(chart));
+      updateDimensions(selection, settings);
+
       return self;
     };
 
@@ -181,9 +183,6 @@ chr1	450	480	predicted	5	10	23
       scoreboxes.enter().append('rect').attr('class', 'scorebox');
       scoreboxes.exit().remove();
       scoreboxes.each(drawScorebox);
-
-      // TODO: this is the same for all graphs
-      updateDimensions(chart, settings);
     };
 
     // load tab-separated data from URL or JSON array
@@ -399,9 +398,6 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       strips.enter().append('g').attr('class', 'strip');
       strips.exit().remove();
       strips.each(drawExonIntron);
-
-      // TODO: this is the same for all graphs
-      updateDimensions(chart, settings);
     };
 
     return self;
@@ -681,9 +677,6 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
         // draw legend
         chart.call(drawLegend, self.data.scores_min, self.data.scores_max);
-
-        // TODO: this is the same for all graphs
-        updateDimensions(chart, settings);
         return self;
       };
     })();
