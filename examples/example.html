@@ -17,12 +17,12 @@
         the <code>associations</code> graph.
       </p>
       <pre>
-        var example1 = htd3('associations', 'example.bed', '#example1');
+        var example1 = htd3('associations', '#example1').load('example.bed');
       </pre>
 
       <div id="example1"></div>
       <script type="text/javascript">
-        var example1 = htd3('associations', 'example.bed', '#example1');
+        var example1 = htd3('associations', '#example1').load('example.bed');
       </script>
     </div>
 
@@ -52,7 +52,7 @@
                         },
                        ];
 
-        var example2 = htd3('associations', testData, '#example2');
+        var example2 = htd3('associations', '#example2').load(testData);
       </pre>
       <div id="example2"></div>
 
@@ -75,7 +75,7 @@
                         },
                        ];
 
-        var example2 = htd3('associations', testData, '#example2');
+        var example2 = htd3('associations', '#example2').load(testData);
       </script>
     </div>
 

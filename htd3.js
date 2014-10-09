@@ -799,16 +799,15 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
   };
 
 
-  // render the specified graph using the data in the specified
-  // filename.  Takes an optional _target element to hold the graph.
-  function htd3 (graph_name, url_or_data, _target) {
+  // initialise the specified graph. Takes an optional _target element
+  // to hold the graph.
+  function htd3 (graph_name, _target) {
     var graph = graphs[graph_name],
-        data,
         target;
 
     if (graph && typeof(graph) === 'function') {
       target = d3.select(_target || 'body').append('svg');
-      return graph(target).load(url_or_data);
+      return graph(target);
     } else {
       console.log("ERROR: unknown graph '"+graph_name+"'.");
       return undefined;
