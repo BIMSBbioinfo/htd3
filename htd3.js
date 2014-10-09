@@ -10,20 +10,21 @@ var htd3 = (function () {
       .scale(1)
       .scaleExtent([1, 8.0])
       .on('zoom', function() {
-        var translation = d3.event.translate;
-        // limit translation to origin at minimum scale
-        if (d3.event.scale === 1) {
-          translation = [ Math.max(0, d3.event.translate[0]),
-                          Math.max(0, d3.event.translate[1])
-                        ];
+        var translation = d3.event.translate,
+            scale = d3.event.scale;
+
+        // reset viewport at scale 1
+        if (scale === 1) {
+          translation = [ 0, 0 ];
         }
+
         element
           .transition()
           .ease('linear')
           .duration(100)
           .attr("transform",
                 "translate(" + translation + ")"+
-                "scale(" + d3.event.scale + ")");
+                "scale(" + scale + ")");
       });
   };
 
