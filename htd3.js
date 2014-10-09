@@ -354,7 +354,6 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
               padded_extent = [ extent[0] - settings.paddingX,
                                 extent[1] + settings.paddingX ];
 
-          console.log(padded_extent);
           return d3.scale.linear()
             .domain(padded_extent)
             .range([0, settings.width]);
@@ -371,7 +370,6 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
       // draw associations and adjust track height
       function drawExonIntron (d, i) {
-        console.log('drawing', d);
         var context = d3.select(this);
 
         // outer dimensions
@@ -407,7 +405,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       // strips containing the actual exon/intron blocks defined in blockSizes/blockStarts
       var strips = tracks
             .selectAll('g.strip')
-            .data(function (d, i) { console.log(d.values); return d.values; });
+            .data(function (d, i) { return d.values; });
       strips.enter().append('g').attr('class', 'strip');
       strips.exit().remove();
       strips.each(drawExonIntron);
