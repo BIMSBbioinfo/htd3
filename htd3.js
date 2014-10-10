@@ -315,7 +315,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           width: 800,
           paddingX: 50,
           paddingY: 50,
-          paddingTick: 15
+          paddingTick: 15,
+          collapseTracks: false
         };
 
     var self = generateSelf(settings, selection);
@@ -389,15 +390,20 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
       // draw associations and adjust track height
       function drawExonIntron (d, i) {
-        var context = d3.select(this);
+        var context = d3.select(this),
+            y = settings.collapseTracks ? 0 : i * (settings.trackHeight + settings.gap);
 
-        // outer dimensions
-        context.append('rect')
-          .attr('x', priv.scale.x(d.start))
-          .attr('y', i * (settings.trackHeight + settings.gap))
-          .attr('width', priv.scale.x(d.end) - priv.scale.x(d.start))
-          .attr('class', 'outer')
-          .attr('height', settings.trackHeight);
+        context
+          .attr('transform', 'translate(0,'+ y +')');
+
+        // outer dimensions for each strip
+        if (!settings.collapseTracks) {
+          context.append('rect')
+            .attr('x', priv.scale.x(d.start))
+            .attr('width', priv.scale.x(d.end) - priv.scale.x(d.start))
+            .attr('class', 'outer')
+            .attr('height', settings.trackHeight);
+        }
 
         d3.zip(d.blockStarts, d.blockSizes).forEach(function (pair) {
           var xstart = d.start + pair[0],
@@ -405,13 +411,11 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
           context.append('rect')
             .attr('x', priv.scale.x(xstart))
-            .attr('y', i * (settings.trackHeight + settings.gap))
             .attr('width', priv.scale.x(xend) - priv.scale.x(xstart))
             .attr('height', settings.trackHeight)
             .attr('fill', 'red');
         });
       }
-
 
       // draw tracks for bound data
       // pass the bound data on to g.track elements
