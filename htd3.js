@@ -107,6 +107,9 @@ chr1	450	480	predicted	5	10	23
   graphs.heatmap = function (selection) {
     var chart = selection,
         settings = {
+          animation: {
+            duration: 200
+          },
           colors: {
             score: ['red', 'black', 'green']
           },
@@ -125,7 +128,8 @@ chr1	450	480	predicted	5	10	23
     self.render = function (selection) {
       var priv = {},
           min = self.data.scores_min,
-          max = self.data.scores_max;
+          max = self.data.scores_max,
+          sortOrder = null;
 
       // update axes and scales
       priv.scale = {
@@ -161,12 +165,26 @@ chr1	450	480	predicted	5	10	23
             column_data = column.data()[0];
 
         scorebox
+          .transition()
+          .duration(settings.animation.duration)
           .attr('fill', priv.scale.scoreColor(normaliseScore(d.value)))
           .attr('height', settings.boxHeight)
           .attr('width', priv.scale.x(column_data.end) - priv.scale.x(column_data.start))
           .attr('x', priv.scale.x(column_data.start))
           .attr('y', settings.verticalOffset + i * (settings.boxHeight + settings.boxGap))
           .attr('title', d.key + ", score: " + d.value);
+
+        // on click: sort by ascending score in region
+        scorebox.on('click', function () {
+          sortOrder = d3.entries(column.datum().scores)
+            .sort(function (a,b) {
+              if (a.value > b.value) { return 1;  }
+              if (a.value < b.value) { return -1; }
+              return 0;
+            })
+            .map(function (pair) { return pair.key; });
+          updateScoreboxes();
+        });
       }
 
       var columns = selection.selectAll('g.track')
@@ -176,12 +194,31 @@ chr1	450	480	predicted	5	10	23
       columns.enter().append('g').attr('class', 'heatcolumn');
       columns.exit().remove();
 
-      var scoreboxes = columns
-            .selectAll('rect.scorebox')
-            .data(function (d, i) { return d3.entries(d.scores); });
-      scoreboxes.enter().append('rect').attr('class', 'scorebox');
-      scoreboxes.exit().remove();
-      scoreboxes.each(drawScorebox);
+      function updateScoreboxes () {
+        var sorter = function (d, i) {
+          var sorted;
+
+          if (sortOrder === null) {
+            sorted = d3.entries(d.scores);
+          } else {
+            sorted = sortOrder.reduce(function (acc, key) {
+              acc.push({'key': key, 'value': d.scores[key]});
+              return acc;
+            }, []);
+          }
+          return sorted;
+        };
+
+        var scoreboxes = columns
+              .selectAll('rect.scorebox')
+              .data(sorter,
+                    function (d) { return d.key; });
+        scoreboxes.enter().append('rect').attr('class', 'scorebox');
+        scoreboxes.exit().remove();
+        scoreboxes.each(drawScorebox);
+      }
+
+      updateScoreboxes();
     };
 
     // load tab-separated data from URL or JSON array
