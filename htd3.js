@@ -5,6 +5,15 @@ var htd3 = (function () {
   // function initialised with said selection.
   var graphs = {};
 
+  function generateScaleX (extent, settings) {
+    var padded_extent = [ extent[0] - settings.paddingX,
+                          extent[1] + settings.paddingX ];
+
+    return d3.scale.linear()
+      .domain(padded_extent)
+      .range([0, settings.width]);
+  };
+
   var zoomer = function (element) {
     var bbox = element.node().getBBox();
     var zoom = d3.behavior.zoom()
@@ -129,22 +138,15 @@ chr1	450	480	predicted	5	10	23
       var priv = {},
           min = self.data.scores_min,
           max = self.data.scores_max,
-          sortOrder = null;
+          sortOrder = null,
+          extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent;
 
       // update axes and scales
       priv.scale = {
         scoreColor: d3.scale.linear()
           .domain(d3.scale.linear().ticks(settings.colors.score.length))
           .range(settings.colors.score),
-        x: (function () {
-          var extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent,
-              padded_extent = [ extent[0] - settings.paddingX,
-                                extent[1] + settings.paddingX ];
-
-          return d3.scale.linear()
-            .domain(padded_extent)
-            .range([0, settings.width]);
-        })()
+        x: generateScaleX(extent, settings)
       };
 
       priv.axes = {
@@ -370,19 +372,12 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
     self.render = function (selection) {
       var priv = {},
           min = self.data.scores_min,
-          max = self.data.scores_max;
+          max = self.data.scores_max,
+          extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent;
 
       // update axes and scales
       priv.scale = {
-        x: (function () {
-          var extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent,
-              padded_extent = [ extent[0] - settings.paddingX,
-                                extent[1] + settings.paddingX ];
-
-          return d3.scale.linear()
-            .domain(padded_extent)
-            .range([0, settings.width]);
-        })()
+        x: generateScaleX(extent, settings)
       };
 
       priv.axes = {
@@ -649,22 +644,15 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       // return actual render function
       return function (selection) {
         var computedHeight,
-            trackOffset = 0;
+            trackOffset = 0,
+            extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent;
 
         // update axes and scales
         priv.scale = {
           linkColor: d3.scale.linear()
             .domain(d3.scale.linear().ticks(settings.colors.score.length))
             .range(settings.colors.score),
-          x: (function () {
-            var extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent,
-                padded_extent = [ extent[0] - settings.paddingX,
-                                  extent[1] + settings.paddingX ];
-
-            return d3.scale.linear()
-              .domain(padded_extent)
-              .range([0, settings.width]);
-          })()
+          x: generateScaleX(extent, settings)
         };
 
         priv.axes = {
