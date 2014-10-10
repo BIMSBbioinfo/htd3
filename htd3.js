@@ -311,6 +311,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         settings = {
           extent: undefined,
           trackHeight: 15,
+          gap: 2,
           width: 800,
           paddingX: 50,
           paddingY: 50,
@@ -393,10 +394,10 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         // outer dimensions
         context.append('rect')
           .attr('x', priv.scale.x(d.start))
-          .attr('y', i * 26)
+          .attr('y', i * (settings.trackHeight + settings.gap))
           .attr('width', priv.scale.x(d.end) - priv.scale.x(d.start))
           .attr('class', 'outer')
-          .attr('height', 25);
+          .attr('height', settings.trackHeight);
 
         d3.zip(d.blockStarts, d.blockSizes).forEach(function (pair) {
           var xstart = d.start + pair[0],
@@ -404,9 +405,9 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
           context.append('rect')
             .attr('x', priv.scale.x(xstart))
-            .attr('y', i * 26)
+            .attr('y', i * (settings.trackHeight + settings.gap))
             .attr('width', priv.scale.x(xend) - priv.scale.x(xstart))
-            .attr('height', 25)
+            .attr('height', settings.trackHeight)
             .attr('fill', 'red');
         });
       }
