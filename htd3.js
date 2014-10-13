@@ -736,18 +736,38 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       };
 
       function postProcessing (data) {
-        self.data = {};
+        var boundData = chart.data()[0],
+            mergedData,
+            keys;
+
+        data = groupByTrack(data);
+
+        // merge the new data with possibly existing data
+        if (boundData !== undefined) {
+          // ensure that keys are unique!  Get existing keys and
+          // remove any match from the bound data.
+          keys = d3.set(data.map(function (d) { return d.key; }));
+          mergedData = boundData.reduce(function (acc, d) {
+            if (!keys.has(d.key)) {
+              acc.push(d);
+            }
+            return acc;
+          }, []);
+          data = mergedData.concat(data);
+        }
 
         // gather x values and scores for scale
-        var xs = d3.merge(data.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; })),
-            scores = data.map(function (d) { return +d.score; }),
+        self.data = {};
+        var flattened = d3.merge(data.map(function (d) { return d.values; })),
+            xs = d3.merge(flattened.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; })),
+            scores = flattened.map(function (d) { return +d.score; }),
             score_range = d3.extent(scores);
 
         self.data.x_extent = d3.extent(xs);
         self.data.scores_min = score_range[0];
         self.data.scores_max = score_range[1];
 
-        data = groupByTrack(data);
+        // bind (merged) data and refresh
         self.refresh(chart.data([data]));
       };
 
