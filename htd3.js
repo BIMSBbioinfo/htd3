@@ -737,7 +737,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
       function postProcessing (data) {
         var boundData = chart.data()[0],
-            mergedData,
+            oldData,
             keys;
 
         data = groupByTrack(data);
@@ -747,13 +747,13 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           // ensure that keys are unique!  Get existing keys and
           // remove any match from the bound data.
           keys = d3.set(data.map(function (d) { return d.key; }));
-          mergedData = boundData.reduce(function (acc, d) {
+          oldData = boundData.reduce(function (acc, d) {
             if (!keys.has(d.key)) {
               acc.push(d);
             }
             return acc;
           }, []);
-          data = mergedData.concat(data);
+          data = oldData.concat(data);
         }
 
         // gather x values and scores for scale
