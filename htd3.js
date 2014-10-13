@@ -735,7 +735,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           .entries(rows);
       };
 
-      function store (data) {
+      function postProcessing (data) {
         self.data = {};
 
         // gather x values and scores for scale
@@ -747,11 +747,6 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         self.data.scores_min = score_range[0];
         self.data.scores_max = score_range[1];
 
-        return data;
-      };
-
-      function postProcessing (data) {
-        store(data);
         data = groupByTrack(data);
         self.refresh(chart.data([data]));
       };
