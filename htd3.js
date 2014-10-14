@@ -32,11 +32,29 @@ var htd3 = (function () {
     });
   };
 
-  function setupTracks (selection) {
+  function setupTracks (selection, settings) {
+    function drawTrack (d, i) {
+      var context = d3.select(this);
+
+      console.log('drawing track', i, context);
+      // draw track
+      context.append('rect')
+        .attr('class', 'base')
+        .attr('height', settings.trackHeight)
+        .attr('width', '100%');
+
+      // label track
+      context.append('text')
+        .attr('font-size', settings.trackHeight * 0.8)
+        .attr('dominant-baseline', 'middle')
+        .attr('x', 3)
+        .attr('y', settings.trackHeight / 2);
+    }
+
     var tracks = selection
           .selectAll('g.track')
           .data(function (d, i) { return d; });
-    tracks.enter().append('g').attr('class', 'track');
+    tracks.enter().append('g').attr('class', 'track').each(drawTrack);
     tracks.exit().remove();
     return tracks;
   };
@@ -246,7 +264,7 @@ chr1	450	480	predicted	5	10	23
         });
       }
 
-      var tracks = setupTracks(selection);
+      var tracks = setupTracks(selection, settings);
       var columns = tracks
             .selectAll('g.heatcolumn')
             .data(function (d, i) { return getTrackLayerData(d, 'heatmap').values; });
@@ -476,7 +494,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         context.attr('transform', 'translate(0,'+ y +')');
       }
 
-      var tracks = setupTracks(selection);
+      var tracks = setupTracks(selection, settings);
       // strips containing the actual exon/intron blocks defined in blockSizes/blockStarts
       var strips = tracks
             .selectAll('g.strip')
@@ -566,22 +584,6 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       }
 
       // draw associations and adjust track height
-      function drawTrack (d, i) {
-        var context = d3.select(this);
-        // draw track
-        context.append('rect')
-          .attr('class', 'base')
-          .attr('height', settings.trackHeight)
-          .attr('width', '100%');
-
-        // label track
-        context.append('text')
-          .attr('font-size', settings.trackHeight * 0.8)
-          .attr('dominant-baseline', 'middle')
-          .attr('x', 3)
-          .attr('y', settings.trackHeight / 2);
-      }
-
       function updateTrack (d, i, trackOffset) {
         var context = d3.select(this),
             computedHeight,
@@ -725,19 +727,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
         // draw tracks for bound data
         // pass the bound data on to g.track elements
-
-        // TODO: use setupTracks instead
-        // var tracks = setupTracks(selection);
-
-        var tracks = selection
-              .selectAll('g.track')
-              .data(function (d, i) { return d; });
-
-        // deal with new tracks
-        tracks.enter().append('g').attr('class', 'track').each(drawTrack);
-
-        // remove exiting tracks
-        tracks.exit().remove();
+        var tracks = setupTracks(selection, settings);
 
         // Draw the contents of each track.  This returns the new track offset,
         // which is used to draw the next track.
