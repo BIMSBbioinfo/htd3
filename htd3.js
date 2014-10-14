@@ -32,6 +32,15 @@ var htd3 = (function () {
     });
   };
 
+  function setupTracks (selection) {
+    var tracks = selection
+          .selectAll('g.track')
+          .data(function (d, i) { return d; });
+    tracks.enter().append('g').attr('class', 'track');
+    tracks.exit().remove();
+    return tracks;
+  };
+
   /*
    oldData   : may have more than one layer
    newData   : has only one layer
@@ -237,8 +246,8 @@ chr1	450	480	predicted	5	10	23
         });
       }
 
-      var columns = selection.selectAll('g.track')
-            .data(function (d, i) { return d; })
+      var tracks = setupTracks(selection);
+      var columns = tracks
             .selectAll('g.heatcolumn')
             .data(function (d, i) { return getTrackLayerData(d, 'heatmap').values; });
       columns.enter().append('g').attr('class', 'heatcolumn');
@@ -467,14 +476,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         context.attr('transform', 'translate(0,'+ y +')');
       }
 
-      // draw tracks for bound data
-      // pass the bound data on to g.track elements
-      var tracks = selection
-            .selectAll('g.track')
-            .data(function (d, i) { return d; });
-      tracks.enter().append('g').attr('class', 'track');
-      tracks.exit().remove();
-
+      var tracks = setupTracks(selection);
       // strips containing the actual exon/intron blocks defined in blockSizes/blockStarts
       var strips = tracks
             .selectAll('g.strip')
@@ -723,6 +725,10 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
         // draw tracks for bound data
         // pass the bound data on to g.track elements
+
+        // TODO: use setupTracks instead
+        // var tracks = setupTracks(selection);
+
         var tracks = selection
               .selectAll('g.track')
               .data(function (d, i) { return d; });
