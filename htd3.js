@@ -14,6 +14,45 @@ var htd3 = (function () {
       .range([0, settings.width]);
   };
 
+  function getTrackLayerData (trackData, layerName) {
+    var layerData = trackData
+          .values
+          .filter(function (x) { return x.layer === layerName; })
+          .map(function (x) { return x.values; })[0];
+    return { key: trackData.key, values: layerData };
+  };
+
+  /*
+   oldData   : may have more than one layer
+   newData   : has only one layer
+   layerName : the name of the layer to copy from newData to oldData
+   */
+  function mergeData (oldData, newData, layerName) {
+    var existingTracks = d3.set(oldData.map(function (d) { return d.key; }));
+
+    return newData.reduce(function (acc, d) {
+      var track,
+          layer;
+
+      if (existingTracks.has(d.key)) {
+        track = acc.find(function (x) { return x.key === d.key; });
+        layer = track.values.find(function (x) { return x.layer === layerName; });
+        if (layer === undefined) {
+          // add layer
+          track.values.concat(d.values);
+        } else {
+          // overwrite existing layer; newData only contains one
+          // layer, so we can access it as d.values[0]
+          layer.values = d.values[0].values;
+        }
+      } else {
+        // add new track
+        acc.push(d);
+      }
+      return acc;
+    }, oldData);
+  };
+
   var zoomer = function (element) {
     var bbox = element.node().getBBox();
     var zoom = d3.behavior.zoom()
@@ -685,7 +724,9 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
         // Draw the contents of each track.  This returns the new track offset,
         // which is used to draw the next track.
-        tracks.each(function (d, i) { trackOffset = updateTrack.bind(this)(d, i, trackOffset); });
+        tracks.each(function (d, i) {
+          trackOffset = updateTrack.bind(this)(getTrackLayerData(d, 'associations'), i, trackOffset);
+        });
 
         // draw grid and axis
         chart.select('g.grid').remove();
@@ -728,37 +769,29 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         };
       };
 
-      // group rows by "chr" column
+      // group rows by "chr" column and wrap values in 'associations' layer
       function groupByTrack (rows) {
-        return d3.nest()
+        var nested = d3.nest()
           .key(function (d) { return d.chr; })
           .entries(rows);
+        return nested.map(function (d) {
+          return { key: d.key, values: [{ layer: 'associations', values: d.values }]};
+        });
       };
 
       function postProcessing (data) {
-        var boundData = chart.data()[0],
-            oldData,
-            keys;
-
+        var boundData = chart.data()[0];
         data = groupByTrack(data);
 
         // merge the new data with possibly existing data
         if (boundData !== undefined) {
-          // ensure that keys are unique!  Get existing keys and
-          // remove any match from the bound data.
-          keys = d3.set(data.map(function (d) { return d.key; }));
-          oldData = boundData.reduce(function (acc, d) {
-            if (!keys.has(d.key)) {
-              acc.push(d);
-            }
-            return acc;
-          }, []);
-          data = oldData.concat(data);
+          data = mergeData(boundData, data, 'associations');
         }
 
         // gather x values and scores for scale
         self.data = {};
-        var flattened = d3.merge(data.map(function (d) { return d.values; })),
+        var layerData = data.map(function (d) { return getTrackLayerData(d, 'associations').values; }),
+            flattened = d3.merge(layerData),
             xs = d3.merge(flattened.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; })),
             scores = flattened.map(function (d) { return +d.score; }),
             score_range = d3.extent(scores);
