@@ -388,25 +388,30 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         };
       };
 
-      // group rows by "chr" column
+      // group rows by "chr" column and wrap values in 'exonintron' layer
       function groupByTrack (rows) {
-        return d3.nest()
+        var nested = d3.nest()
           .key(function (d) { return d.chr; })
           .entries(rows);
+        return nested.map(function (d) {
+          return { key: d.key, values: [{ layer: 'exonintron', values: d.values }]};
+        });
       };
 
       function store (data) {
         self.data = {};
 
         // gather x values and scores for scale
-        var xs = d3.merge(data.map(function (d) { return [+d.start, +d.end, +d.thickStart, +d.thickEnd]; }));
+        var layerData = data.map(function (d) { return getTrackLayerData(d, 'exonintron').values; }),
+            flattened = d3.merge(layerData),
+            xs = d3.merge(flattened.map(function (d) { return [+d.start, +d.end, +d.thickStart, +d.thickEnd]; }));
         self.data.x_extent = d3.extent(xs);
         return data;
       };
 
       function postProcessing (data) {
-        store(data);
         data = groupByTrack(data);
+        store(data);
         self.refresh(chart.data([data]));
       };
 
@@ -479,7 +484,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       // strips containing the actual exon/intron blocks defined in blockSizes/blockStarts
       var strips = tracks
             .selectAll('g.strip')
-            .data(function (d, i) { return d.values; });
+            .data(function (d, i) { return getTrackLayerData(d, 'exonintron').values; });
       strips.enter().append('g').attr('class', 'strip');
       strips.exit().remove();
       strips.each(drawExonIntron);
