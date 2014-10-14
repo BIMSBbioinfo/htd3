@@ -582,11 +582,9 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           .attr('y', settings.legendHeight / 2);
       }
 
-      // draw associations and adjust track height
-      function updateTrack (d, i, trackOffset) {
+      // draw associations in the current track
+      function updateTrack (d, i) {
         var context = d3.select(this),
-            computedHeight,
-            y,
             min = self.data.scores_min,
             max = self.data.scores_max;
 
@@ -672,14 +670,6 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           })
           .duration(500)
           .attr('opacity', 1);
-
-
-        // adjust vertical position based on computed track height
-        computedHeight = context.node().getBBox().y;
-        y = -computedHeight + trackOffset + settings.paddingY;
-        context.attr('transform', 'translate(0,'+ y +')');
-        trackOffset = y;
-        return trackOffset;
       }
 
       // generate link path
@@ -728,10 +718,20 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         // pass the bound data on to g.track elements
         var tracks = setupTracks(selection, settings);
 
-        // Draw the contents of each track.  This returns the new track offset,
-        // which is used to draw the next track.
+        // Draw the contents of each track.
         tracks.each(function (d, i) {
-          trackOffset = updateTrack.bind(this)(getTrackLayerData(d, 'associations'), i, trackOffset);
+          updateTrack.bind(this)(getTrackLayerData(d, 'associations'), i);
+        });
+
+        // update track height and y-position
+        trackOffset = 0;
+        tracks.each(function (d, i) {
+          var track = d3.select(this),
+              computedHeight = track.node().getBBox().y,
+              y = -computedHeight + trackOffset + settings.paddingY;
+
+          track.attr('transform', 'translate(0,'+ y +')');
+          trackOffset = y;
         });
 
         // draw grid and axis
