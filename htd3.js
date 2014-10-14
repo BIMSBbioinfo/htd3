@@ -36,7 +36,6 @@ var htd3 = (function () {
     function drawTrack (d, i) {
       var context = d3.select(this);
 
-      console.log('drawing track', i, context);
       // draw track
       context.append('rect')
         .attr('class', 'base')
