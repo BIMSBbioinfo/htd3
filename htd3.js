@@ -39,7 +39,7 @@ var htd3 = (function () {
         layer = track.values.find(function (x) { return x.layer === layerName; });
         if (layer === undefined) {
           // add layer
-          track.values.concat(d.values);
+          track.values = track.values.concat(d.values);
         } else {
           // overwrite existing layer; newData only contains one
           // layer, so we can access it as d.values[0]
