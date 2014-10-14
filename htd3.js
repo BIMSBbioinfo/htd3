@@ -22,6 +22,16 @@ var htd3 = (function () {
     return { key: trackData.key, values: layerData };
   };
 
+  // group rows by "chr" column and wrap values in layer
+  function groupByTrack (rows, layerName) {
+    var nested = d3.nest()
+          .key(function (d) { return d.chr; })
+          .entries(rows);
+    return nested.map(function (d) {
+      return { key: d.key, values: [{ layer: layerName, values: d.values }]};
+    });
+  };
+
   /*
    oldData   : may have more than one layer
    newData   : has only one layer
@@ -285,16 +295,6 @@ chr1	450	480	predicted	5	10	23
         };
       })();
 
-      // group rows by "chr" column and wrap values in 'heatmap' layer
-      function groupByTrack (rows) {
-        var nested = d3.nest()
-          .key(function (d) { return d.chr; })
-          .entries(rows);
-        return nested.map(function (d) {
-          return { key: d.key, values: [{ layer: 'heatmap', values: d.values }]};
-        });
-      };
-
       function store (data) {
         self.data = {};
 
@@ -314,7 +314,7 @@ chr1	450	480	predicted	5	10	23
 
       function postProcessing (data) {
         var boundData = chart.data()[0];
-        data = groupByTrack(data);
+        data = groupByTrack(data, 'heatmap');
 
         // merge the new data with possibly existing data
         if (boundData !== undefined) {
@@ -388,16 +388,6 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         };
       };
 
-      // group rows by "chr" column and wrap values in 'exonintron' layer
-      function groupByTrack (rows) {
-        var nested = d3.nest()
-          .key(function (d) { return d.chr; })
-          .entries(rows);
-        return nested.map(function (d) {
-          return { key: d.key, values: [{ layer: 'exonintron', values: d.values }]};
-        });
-      };
-
       function store (data) {
         self.data = {};
 
@@ -410,7 +400,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       };
 
       function postProcessing (data) {
-        data = groupByTrack(data);
+        data = groupByTrack(data, 'exonintron');
         store(data);
         self.refresh(chart.data([data]));
       };
@@ -786,19 +776,9 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         };
       };
 
-      // group rows by "chr" column and wrap values in 'associations' layer
-      function groupByTrack (rows) {
-        var nested = d3.nest()
-          .key(function (d) { return d.chr; })
-          .entries(rows);
-        return nested.map(function (d) {
-          return { key: d.key, values: [{ layer: 'associations', values: d.values }]};
-        });
-      };
-
       function postProcessing (data) {
         var boundData = chart.data()[0];
-        data = groupByTrack(data);
+        data = groupByTrack(data, 'associations');
 
         // merge the new data with possibly existing data
         if (boundData !== undefined) {
