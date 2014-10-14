@@ -230,7 +230,7 @@ chr1	450	480	predicted	5	10	23
       var columns = selection.selectAll('g.track')
             .data(function (d, i) { return d; })
             .selectAll('g.heatcolumn')
-            .data(function (d, i) { return d.values; });
+            .data(function (d, i) { return getTrackLayerData(d, 'heatmap').values; });
       columns.enter().append('g').attr('class', 'heatcolumn');
       columns.exit().remove();
 
@@ -285,19 +285,24 @@ chr1	450	480	predicted	5	10	23
         };
       })();
 
-      // group rows by "chr" column
+      // group rows by "chr" column and wrap values in 'heatmap' layer
       function groupByTrack (rows) {
-        return d3.nest()
+        var nested = d3.nest()
           .key(function (d) { return d.chr; })
           .entries(rows);
+        return nested.map(function (d) {
+          return { key: d.key, values: [{ layer: 'heatmap', values: d.values }]};
+        });
       };
 
       function store (data) {
         self.data = {};
 
         // gather x values and scores for scale
-        var xs = d3.merge(data.map(function (d) { return [+d.start, +d.end]; })),
-            scores = d3.merge(data.map(function (d) { return d3.values(d.scores); })),
+        var layerData = data.map(function (d) { return getTrackLayerData(d, 'heatmap').values; }),
+            flattened = d3.merge(layerData),
+            xs = d3.merge(flattened.map(function (d) { return [+d.start, +d.end]; })),
+            scores = d3.merge(flattened.map(function (d) { return d3.values(d.scores); })),
             score_range = d3.extent(scores);
 
         self.data.x_extent = d3.extent(xs);
@@ -308,8 +313,15 @@ chr1	450	480	predicted	5	10	23
       };
 
       function postProcessing (data) {
-        store(data);
+        var boundData = chart.data()[0];
         data = groupByTrack(data);
+
+        // merge the new data with possibly existing data
+        if (boundData !== undefined) {
+          data = mergeData(boundData, data, 'heatmap');
+        }
+
+        store(data);
         self.refresh(chart.data([data]));
       };
 
