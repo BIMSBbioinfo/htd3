@@ -436,11 +436,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
       // draw associations and adjust track height
       function drawExonIntron (d, i) {
-        var context = d3.select(this),
-            y = settings.collapseTracks ? 0 : i * (settings.trackHeight + settings.gap);
-
-        context
-          .attr('transform', 'translate(0,'+ y +')');
+        var context = d3.select(this);
 
         // outer dimensions for each strip
         if (!settings.collapseTracks) {
@@ -463,6 +459,14 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         });
       }
 
+      // fan out vertically
+      function spreadStrips (d, i) {
+        var context = d3.select(this),
+            y = settings.collapseTracks ? 0 : i * (settings.trackHeight + settings.gap);
+
+        context.attr('transform', 'translate(0,'+ y +')');
+      }
+
       // draw tracks for bound data
       // pass the bound data on to g.track elements
       var tracks = selection
@@ -477,6 +481,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
             .data(function (d, i) { return getTrackLayerData(d, 'exonintron').values; });
       strips.enter().append('g').attr('class', 'strip').each(drawExonIntron);
       strips.exit().remove();
+      strips.each(spreadStrips);
 
       strips.on('click', function () {
         settings.collapseTracks = !settings.collapseTracks;
