@@ -61,9 +61,9 @@ var htd3 = (function () {
   function updateTracksHeightAndPosition (tracks, settings) {
     var trackOffset = settings.paddingY;
     tracks.each(function (d, i) {
-      var track = d3.select(this);
-      var computedHeight = track.node().getBBox().height;
-      var y = track.node().getBBox().y;
+      var track = d3.select(this),
+          computedHeight = track.node().getBBox().height,
+          y = track.node().getBBox().y;
 
       track.attr('transform', 'translate(0,'+ (trackOffset - y) +')');
       trackOffset += computedHeight + settings.paddingY;
@@ -102,11 +102,11 @@ var htd3 = (function () {
   };
 
   var zoomer = function (element) {
-    var bbox = element.node().getBBox();
-    var zoom = d3.behavior.zoom()
-      .scale(1)
-      .scaleExtent([1, 8.0])
-      .size([bbox.width, bbox.height]);
+    var bbox = element.node().getBBox(),
+        zoom = d3.behavior.zoom()
+          .scale(1)
+          .scaleExtent([1, 8.0])
+          .size([bbox.width, bbox.height]);
 
     zoom.on('zoom', function() {
       var translation = d3.event.translate,
@@ -225,7 +225,9 @@ chr1	450	480	predicted	5	10	23
           min = self.data.scores_min,
           max = self.data.scores_max,
           sortOrder = null,
-          extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent;
+          extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent,
+          tracks = setupTracks(selection, settings),
+          columns;
 
       // update axes and scales
       priv.scale = {
@@ -275,10 +277,9 @@ chr1	450	480	predicted	5	10	23
         });
       }
 
-      var tracks = setupTracks(selection, settings);
-      var columns = tracks
-            .selectAll('g.heatcolumn')
-            .data(function (d, i) { return getTrackLayerData(d, 'heatmap').values; });
+      columns = tracks
+        .selectAll('g.heatcolumn')
+        .data(function (d, i) { return getTrackLayerData(d, 'heatmap').values; });
       columns.enter().append('g').attr('class', 'heatcolumn');
       columns.exit().remove();
 
@@ -369,8 +370,8 @@ chr1	450	480	predicted	5	10	23
       } else {
         // fetch file from URL, convert data and bind grouped data
         d3.xhr(url_or_data, "text/plain", function (response) {
-          var contents = response.responseText;
-          var rows = d3.tsv.parseRows(contents, converter);
+          var contents = response.responseText,
+              rows = d3.tsv.parseRows(contents, converter);
           postProcessing(rows);
         });
       }
@@ -458,7 +459,9 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       var priv = {},
           min = self.data.scores_min,
           max = self.data.scores_max,
-          extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent;
+          extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent,
+          tracks = setupTracks(selection, settings),
+          strips;
 
       // update axes and scales
       priv.scale = {
@@ -506,11 +509,10 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         context.attr('transform', 'translate(0,'+ y +')');
       }
 
-      var tracks = setupTracks(selection, settings);
       // strips containing the actual exon/intron blocks defined in blockSizes/blockStarts
-      var strips = tracks
-            .selectAll('g.strip')
-            .data(function (d, i) { return getTrackLayerData(d, 'exonintron').values; });
+      strips = tracks
+        .selectAll('g.strip')
+        .data(function (d, i) { return getTrackLayerData(d, 'exonintron').values; });
       strips.enter().append('g').attr('class', 'strip').each(drawExonIntron);
       strips.exit().remove();
       strips.each(spreadStrips);
@@ -559,11 +561,13 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
             gradient = legend.append('defs').append('linearGradient'),
             node,
             offset = 0,
-            legendPadding = 4;
+            legendPadding = 4,
+            percent,
+            i;
 
         // build gradient stops from colors
-        for (var i=0; i <= settings.colors.score.length; i++) {
-          var percent = i/settings.colors.score.length;
+        for (i=0; i <= settings.colors.score.length; i++) {
+          percent = i/settings.colors.score.length;
           gradient.append('stop')
             .attr('offset', (100*percent) + '%')
             .attr('stop-color', priv.scale.linkColor(percent) );
@@ -600,6 +604,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       // draw associations in the current track
       function updateTrack (d, i) {
         var context = d3.select(this),
+            associations,
             min = self.data.scores_min,
             max = self.data.scores_max;
 
@@ -665,9 +670,9 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         context.select('text').text(d.key);
 
         // draw regions with associations for this track
-        var associations = context
-              .selectAll('g.association')
-              .data(d.values);
+        associations = context
+          .selectAll('g.association')
+          .data(d.values);
 
         associations.enter()
           .append('g')
@@ -711,7 +716,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       return function (selection) {
         var computedHeight,
             trackOffset = 0,
-            extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent;
+            extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent,
+            tracks = setupTracks(selection, settings);
 
         // update axes and scales
         priv.scale = {
@@ -728,10 +734,6 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
             .tickPadding(settings.paddingTick)
             .ticks(10)
         };
-
-        // draw tracks for bound data
-        // pass the bound data on to g.track elements
-        var tracks = setupTracks(selection, settings);
 
         // Draw the contents of each track.
         tracks.each(function (d, i) {
