@@ -132,6 +132,7 @@ var htd3 = (function () {
               "scale(" + scale + ")");
     });
 
+    zoom(element);
     return zoom;
   };
 
