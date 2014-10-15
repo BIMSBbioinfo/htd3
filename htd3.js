@@ -66,8 +66,6 @@ var htd3 = (function () {
       var y = track.node().getBBox().y;
 
       track.attr('transform', 'translate(0,'+ (trackOffset - y) +')');
-
-      console.log(track, trackOffset, track.node().getBBox());
       trackOffset += computedHeight + settings.paddingY;
     });
   };
