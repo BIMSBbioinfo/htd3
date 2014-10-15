@@ -139,7 +139,7 @@ var htd3 = (function () {
 
     function updateDimensions () {
       // recompute height
-      var computedHeight = chart.node().getBBox().height;
+      var computedHeight = chart.node().getBBox().height + chart.node().getBBox().y;
 
       // style chart
       chart
