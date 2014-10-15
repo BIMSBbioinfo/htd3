@@ -217,10 +217,8 @@ chr1	450	480	predicted	5	10	23
           verticalOffset: 15,
           boxHeight: 15,
           boxGap: 1
-        };
-
-
-    var self = generateSelf(settings, selection);
+        },
+        self = generateSelf(settings, selection);
 
     self.render = function (selection) {
       var priv = {},
@@ -410,9 +408,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           paddingY: 50,
           paddingTick: 15,
           collapseTracks: false
-        };
-
-    var self = generateSelf(settings, selection);
+        },
+        self = generateSelf(settings, selection);
 
     // load tab-separated data from URL or JSON array
     self.load = function (url_or_data) {
@@ -549,9 +546,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           paddingX: 50,
           paddingY: 50,
           paddingTick: 15
-        };
-
-    var self = generateSelf(settings, selection);
+        },
+        self = generateSelf(settings, selection);
 
     // private functions
     self.render = (function () {
