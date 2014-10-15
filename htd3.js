@@ -43,7 +43,7 @@ var htd3 = (function () {
       context.append('rect')
         .attr('class', 'base')
         .attr('height', settings.trackHeight)
-        .attr('width', '100%');
+        .attr('width', settings.width);
 
       // label track
       context.append('text')
