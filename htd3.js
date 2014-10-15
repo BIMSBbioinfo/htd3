@@ -214,7 +214,7 @@ chr1	450	480	predicted	5	10	23
           width: 800,
           padding: { x: 50, y: 50 },
           paddingTick: 15,
-          verticalOffset: 15,
+          trackHeight: 15,
           boxHeight: 15,
           boxGap: 1
         },
@@ -261,7 +261,7 @@ chr1	450	480	predicted	5	10	23
           .attr('height', settings.boxHeight)
           .attr('width', priv.scale.x(column_data.end) - priv.scale.x(column_data.start))
           .attr('x', priv.scale.x(column_data.start))
-          .attr('y', settings.verticalOffset + i * (settings.boxHeight + settings.boxGap))
+          .attr('y', settings.trackHeight + i * (settings.boxHeight + settings.boxGap))
           .attr('title', d.key + ", score: " + d.value);
 
         // on click: sort by ascending score in region
