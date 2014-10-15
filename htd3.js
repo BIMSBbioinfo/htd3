@@ -197,7 +197,6 @@ chr1	450	480	predicted	5	10	23
 */
 
 // TODO: add colour legend
-// TODO: bind data to layer inside each track, because binding to tracks themselves breaks refresh
 
   graphs.heatmap = function (selection) {
     var chart = selection,
