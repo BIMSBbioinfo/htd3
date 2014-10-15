@@ -58,6 +58,20 @@ var htd3 = (function () {
     return tracks;
   };
 
+  function updateTracksHeightAndPosition (tracks, settings) {
+    var trackOffset = settings.paddingY;
+    tracks.each(function (d, i) {
+      var track = d3.select(this);
+      var computedHeight = track.node().getBBox().height;
+      var y = track.node().getBBox().y;
+
+      track.attr('transform', 'translate(0,'+ (trackOffset - y) +')');
+
+      console.log(track, trackOffset, track.node().getBBox());
+      trackOffset += computedHeight + settings.paddingY;
+    });
+  };
+
   /*
    oldData   : may have more than one layer
    newData   : has only one layer
@@ -295,6 +309,7 @@ chr1	450	480	predicted	5	10	23
       }
 
       updateScoreboxes();
+      updateTracksHeightAndPosition(tracks, settings);
     };
 
     // load tab-separated data from URL or JSON array
@@ -506,6 +521,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         settings.collapseTracks = !settings.collapseTracks;
         self.refresh();
       });
+
+      updateTracksHeightAndPosition(tracks, settings);
     };
 
     return self;
@@ -723,16 +740,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           updateTrack.bind(this)(getTrackLayerData(d, 'associations'), i);
         });
 
-        // update track height and y-position
-        trackOffset = 0;
-        tracks.each(function (d, i) {
-          var track = d3.select(this),
-              computedHeight = track.node().getBBox().y,
-              y = -computedHeight + trackOffset + settings.paddingY;
-
-          track.attr('transform', 'translate(0,'+ y +')');
-          trackOffset = y;
-        });
+        updateTracksHeightAndPosition(tracks, settings);
 
         // draw grid and axis
         chart.select('g.grid').remove();
