@@ -6,8 +6,8 @@ var htd3 = (function () {
   var graphs = {};
 
   function generateScaleX (extent, settings) {
-    var padded_extent = [ extent[0] - settings.paddingX,
-                          extent[1] + settings.paddingX ];
+    var padded_extent = [ extent[0] - settings.padding.x,
+                          extent[1] + settings.padding.x ];
 
     return d3.scale.linear()
       .domain(padded_extent)
@@ -62,14 +62,14 @@ var htd3 = (function () {
   };
 
   function updateTracksHeightAndPosition (tracks, settings) {
-    var trackOffset = settings.paddingY;
+    var trackOffset = settings.padding.y;
     tracks.each(function (d, i) {
       var track = d3.select(this),
           computedHeight = track.node().getBBox().height,
           y = track.node().getBBox().y;
 
       track.attr('transform', 'translate(0,'+ (trackOffset - y) +')');
-      trackOffset += computedHeight + settings.paddingY;
+      trackOffset += computedHeight + settings.padding.y;
     });
   };
 
@@ -212,7 +212,7 @@ chr1	450	480	predicted	5	10	23
           },
           extent: undefined,
           width: 800,
-          paddingX: 50,
+          padding: { x: 50, y: 50 },
           paddingTick: 15,
           verticalOffset: 15,
           boxHeight: 15,
@@ -404,8 +404,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           trackHeight: 15,
           gap: 2,
           width: 800,
-          paddingX: 50,
-          paddingY: 50,
+          padding: { x: 50, y: 50 },
           paddingTick: 15,
           collapseTracks: false
         },
@@ -543,8 +542,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           trackHeight: 15,
           linkRadiusRatio: 0.8,
           width: 800,
-          paddingX: 50,
-          paddingY: 50,
+          padding: { x: 50, y: 50 },
           paddingTick: 15
         },
         self = generateSelf(settings, selection);
@@ -745,7 +743,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         chart.select('g.axis').remove();
         chart.select('g.legend').remove();
 
-        computedHeight = chart.node().getBBox().height + 2 * settings.paddingY;
+        computedHeight = chart.node().getBBox().height + 2 * settings.padding.y;
 
         chart.append("g")
           .attr("class", "grid")
