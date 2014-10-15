@@ -141,13 +141,24 @@ var htd3 = (function () {
 
     function updateDimensions () {
       // recompute height
-      var computedHeight = chart.node().getBBox().height + chart.node().getBBox().y;
+      var computedHeight = chart.node().getBBox().height + chart.node().getBBox().y,
+          margin = settings.margin;
 
       // style chart
       chart
         .attr('class', 'htd3 chart')
         .attr('width', settings.width)
         .attr('height', computedHeight);
+
+      // apply margins
+      if (margin === undefined) {
+        margin = { top: 30, right: 30, bottom: 30, left: 30 };
+      }
+      chart
+        .attr('transform', 'translate('+margin.left+','+margin.top+')');
+      self.root
+        .attr('width', settings.width + margin.left + margin.right)
+        .attr('height', computedHeight + margin.top + margin.bottom);
     };
 
     // chainable getter / setter for settings
@@ -167,7 +178,7 @@ var htd3 = (function () {
       }
 
       selection.call(self.render);
-      selection.call(zoomer(chart));
+      selection.call(zoomer(self.root));
       updateDimensions();
 
       return self;
@@ -175,6 +186,9 @@ var htd3 = (function () {
 
     // initialise
     self.settings(settings);
+
+    // store parent to allow for adjustment of margins
+    self.root = d3.select(chart.node().parentNode);
 
     return self;
   };
@@ -826,7 +840,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         target;
 
     if (graph && typeof(graph) === 'function') {
-      target = d3.select(_target || 'body').append('svg');
+      target = d3.select(_target || 'body').append('svg').append('g');
       return graph(target);
     } else {
       console.log("ERROR: unknown graph '"+graph_name+"'.");

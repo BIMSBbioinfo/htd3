@@ -106,7 +106,7 @@
         };
 
         // select the target
-        var selection = d3.select('#example3').append('svg');
+        var selection = d3.select('#example3').append('svg').append('g');
 
         // render association arcs
         var example3 = htd3.graphs.associations(selection)
@@ -129,7 +129,7 @@
         };
 
         // select the target
-        var selection = d3.select('#example3').append('svg');
+        var selection = d3.select('#example3').append('svg').append('g');
 
         // render association arcs
         var example3 = htd3.graphs.associations(selection)
@@ -151,7 +151,7 @@
       </p>
       <pre>
         // select the target
-        var selection = d3.select('#example-exonintron').append('svg');
+        var selection = d3.select('#example-exonintron').append('svg').append('g');
 
         // render exon intron graph
         var example3 = htd3.graphs.exonintron(selection)
@@ -161,7 +161,7 @@
 
       <script type="text/javascript">
         // select the target
-        var selection = d3.select('#example-exonintron').append('svg');
+        var selection = d3.select('#example-exonintron').append('svg').append('g');
 
         // render exon intron graph
         var example3 = htd3.graphs.exonintron(selection)
