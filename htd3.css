@@ -1,12 +1,12 @@
 .htd3 text {
     font: 10px sans-serif; }
 
-.htd3.chart {
+svg.htd3 {
     height: 100%;
     display: block;
     overflow: hidden;
-    background: #fafafa;
-    margin: 1em; }
+    background: #fcfcfc;
+    border: 1px solid #aaa; }
 
 .htd3 .legend rect {
     opacity: 0.5;

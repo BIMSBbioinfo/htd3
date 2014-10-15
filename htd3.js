@@ -146,7 +146,7 @@ var htd3 = (function () {
 
       // style chart
       chart
-        .attr('class', 'htd3 chart')
+        .attr('class', 'chart')
         .attr('width', settings.width)
         .attr('height', computedHeight);
 
@@ -157,6 +157,7 @@ var htd3 = (function () {
       chart
         .attr('transform', 'translate('+margin.left+','+margin.top+')');
       self.root
+        .attr('class', 'htd3')
         .attr('width', settings.width + margin.left + margin.right)
         .attr('height', computedHeight + margin.top + margin.bottom);
     };
