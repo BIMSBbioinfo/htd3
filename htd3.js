@@ -19,6 +19,9 @@ var htd3 = (function () {
           .values
           .filter(function (x) { return x.layer === layerName; })
           .map(function (x) { return x.values; })[0];
+    if (layerData === undefined) {
+      layerData = [];
+    }
     return { key: trackData.key, values: layerData };
   };
 
