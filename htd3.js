@@ -71,7 +71,22 @@ var htd3 = (function () {
       track.attr('transform', 'translate(0,'+ (trackOffset - y) +')');
       trackOffset += computedHeight + settings.padding.y;
     });
+    return trackOffset;
   };
+
+  function drawBackground (chart, axis, height) {
+    chart.select('g.grid').remove();
+    chart.append("g")
+      .attr("class", "grid")
+      .attr("transform", "translate(0," + height + ")")
+      .call(axis.tickSize(-height, 0));
+
+    chart.select('g.axis').remove();
+    chart.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + height + ")")
+      .call(axis.ticks(40).tickSize(5, 10));
+  }
 
   /*
    oldData   : may have more than one layer
@@ -242,7 +257,8 @@ chr1	450	480	predicted	5	10	23
           sortOrder = null,
           extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent,
           tracks = setupTracks(selection, settings),
-          columns;
+          columns,
+          trackOffset;
 
       // update axes and scales
       priv.scale = {
@@ -323,7 +339,8 @@ chr1	450	480	predicted	5	10	23
       }
 
       updateScoreboxes();
-      updateTracksHeightAndPosition(tracks, settings);
+      trackOffset = updateTracksHeightAndPosition(tracks, settings);
+      drawBackground(chart, priv.axes.x, trackOffset);
     };
 
     // load tab-separated data from URL or JSON array
@@ -474,6 +491,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           max = self.data.scores_max,
           extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent,
           tracks = setupTracks(selection, settings),
+          trackOffset,
           strips;
 
       // update axes and scales
@@ -535,7 +553,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         self.refresh();
       });
 
-      updateTracksHeightAndPosition(tracks, settings);
+      trackOffset = updateTracksHeightAndPosition(tracks, settings);
+      drawBackground(chart, priv.axes.x, trackOffset);
     };
 
     return self;
@@ -751,29 +770,11 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           updateTrack.bind(this)(getTrackLayerData(d, 'associations'), i);
         });
 
-        updateTracksHeightAndPosition(tracks, settings);
-
-        // draw grid and axis
-        chart.select('g.grid').remove();
-        chart.select('g.axis').remove();
-        chart.select('g.legend').remove();
-
-        computedHeight = chart.node().getBBox().height + 2 * settings.padding.y;
-
-        chart.append("g")
-          .attr("class", "grid")
-          .attr("transform", "translate(0," + computedHeight + ")")
-          .call(priv.axes.x
-                .tickSize(-computedHeight, 0));
-
-        chart.append("g")
-          .attr("class", "x axis")
-          .attr("transform", "translate(0," + computedHeight + ")")
-          .call(priv.axes.x
-                .ticks(40)
-                .tickSize(5, 10));
+        trackOffset = updateTracksHeightAndPosition(tracks, settings);
+        drawBackground(chart, priv.axes.x, trackOffset);
 
         // draw legend
+        chart.select('g.legend').remove();
         chart.call(drawLegend, self.data.scores_min, self.data.scores_max);
         return self;
       };
