@@ -118,10 +118,9 @@ var htd3 = (function () {
       // reset viewport at scale 1
       if (scale === 1) {
         translation = [ 0, 0 ];
+        // keep translation in sync
+        zoom.translate(translation);
       }
-
-      // keep translation in sync
-      zoom.translate(translation);
 
       element
         .transition()
