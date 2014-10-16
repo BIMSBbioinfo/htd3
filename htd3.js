@@ -178,7 +178,6 @@ var htd3 = (function () {
       }
 
       selection.call(self.render);
-      selection.call(zoomer(self.root));
       updateDimensions();
 
       return self;
@@ -189,6 +188,7 @@ var htd3 = (function () {
 
     // store parent to allow for adjustment of margins
     self.root = d3.select(chart.node().parentNode);
+    zoomer(self.root);
 
     return self;
   };
