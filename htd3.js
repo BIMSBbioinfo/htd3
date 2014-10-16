@@ -14,6 +14,12 @@ var htd3 = (function () {
       .range([0, settings.width]);
   };
 
+  function generateColorScale (colors) {
+    return d3.scale.linear()
+      .domain(d3.scale.linear().ticks(colors.length))
+      .range(colors);
+  };
+
   function getTrackLayerData (trackData, layerName) {
     var layerData = trackData
           .values
@@ -262,9 +268,7 @@ chr1	450	480	predicted	5	10	23
 
       // update axes and scales
       priv.scale = {
-        scoreColor: d3.scale.linear()
-          .domain(d3.scale.linear().ticks(settings.colors.score.length))
-          .range(settings.colors.score),
+        scoreColor: generateColorScale(settings.colors.score),
         x: generateScaleX(extent, settings)
       };
 
@@ -751,9 +755,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
         // update axes and scales
         priv.scale = {
-          linkColor: d3.scale.linear()
-            .domain(d3.scale.linear().ticks(settings.colors.score.length))
-            .range(settings.colors.score),
+          linkColor: generateColorScale(settings.colors.score),
           x: generateScaleX(extent, settings)
         };
 
