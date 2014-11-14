@@ -4,6 +4,7 @@
     <meta charset="utf-8" />
     <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
     <script src="../htd3.js" charset="utf-8"></script>
+    <script src="http://localhost:8080/skewer" charset="utf-8"></script>
     <link href="example.css" media="all" rel="stylesheet" type="text/css">
     <link href="../htd3.css" media="all" rel="stylesheet" type="text/css">
   </head>
@@ -166,6 +167,55 @@
         // render exon intron graph
         var example3 = htd3.graphs.exonintron(selection)
           .load('refseq.example.bed');
+      </script>
+    </div>
+
+    <div class="example">
+      <h1>Combining graphs</h1>
+
+      <p>
+        htd3.js makes it easy to combine graphs by automatically
+        merging tracks.  The only requirement is to pass
+        settings.extent to all graph invokations to stop htd3 from
+        guessing the extents for each graph.
+      </p>
+      <pre>
+        // select the target
+        var selection = d3.select('#combining').append('svg').append('g');
+
+        var settings = {
+          extent: [31487000, 31890000],
+        };
+
+        // render exon intron graph
+        htd3.graphs.exonintron(selection)
+          .settings(settings)
+          .load('combining-refseq.bed');
+
+        // render association graph
+        htd3.graphs.associations(selection)
+          .settings(settings)
+          .load('combining-assoc.bed');
+      </pre>
+      <div id="combining"></div>
+
+      <script type="text/javascript">
+        // select the target
+        var selection = d3.select('#combining').append('svg').append('g');
+
+        var settings = {
+          extent: [31487000, 31890000],
+        };
+
+        // render exon intron graph
+        htd3.graphs.exonintron(selection)
+          .settings(settings)
+          .load('combining-refseq.bed');
+
+        // render association graph
+        htd3.graphs.associations(selection)
+          .settings(settings)
+          .load('combining-assoc.bed');
       </script>
     </div>
 
