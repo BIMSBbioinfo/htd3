@@ -836,6 +836,230 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
   };
 
 
+  // like associations but the height of the arc encodes the score
+  graphs.sushi = function (selection) {
+    var chart = selection,
+        settings = {
+          animation: {
+            groupDelay: 300,
+            trackDelay: 200
+          },
+          extent: undefined,
+          arc: {
+            scale: 1,        // score scaling factor>
+            minHeight: 0.2,  // minimum height of an arc
+            thickness: 5,    // stroke thickness
+            color: 'red'     // stroke color
+          },
+          legendHeight: 20,
+          trackHeight: 15,
+          width: 800,
+          padding: { x: 50, y: 50 },
+          paddingTick: 15
+        },
+        self = generateSelf(settings, selection);
+
+    // private functions
+    self.render = (function () {
+      var priv = {};
+
+      // draw associations in the current track
+      function updateTrack (d, i) {
+        var context = d3.select(this),
+            associations,
+            min = self.data.scores_min,
+            max = self.data.scores_max;
+
+        function normaliseScore (score) {
+          return (score - min) / (max - min);
+        };
+
+        // draw an association between two regions
+        function drawAssociation (d, i) {
+          // prepare data structure for link rendering
+          var group = d3.select(this),
+              linkObjects = {
+                score: normaliseScore(d.score),
+                source: {
+                  x0: priv.scale.x(d.start),
+                  x1: priv.scale.x(d.end)
+                },
+                target: {
+                  x0: priv.scale.x(d.targetStart),
+                  x1: priv.scale.x(d.targetEnd)
+                }
+              };
+
+          // clear existing stuff
+          group.selectAll('rect.region').remove();
+          group.selectAll('path.link').remove();
+
+          // draw region rectangle
+          group.append('rect')
+            .attr('class', 'region source')
+            .attr('height', settings.trackHeight)
+            .attr('width', priv.scale.x(d.end) - priv.scale.x(d.start))
+            .attr('x', priv.scale.x(d.start))
+            .attr('title', 'source: ' + d.start + ':' + d.end);
+
+          // draw target rectangle
+          group.append('rect')
+            .attr('class', 'region target')
+            .attr('height', settings.trackHeight)
+            .attr('width', priv.scale.x(d.targetEnd) - priv.scale.x(d.targetStart))
+            .attr('x', priv.scale.x(d.targetStart))
+            .attr('title', 'target: ' + d.targetStart + ':' + d.targetEnd);
+
+          // draw link to target region on same track
+          group.append('path')
+            .attr('class', 'link')
+            .attr('d', linkPath(linkObjects))
+            .style({fill: 'none',
+                    stroke: settings.arc.color,
+                    'stroke-width': settings.arc.thickness})
+            .attr('title', 'score: '+d.score);
+
+          // bring group to the top on hover
+          group.on('mouseover', function () {
+            var parent = d3.select(this.parentNode),
+                removed = group.classed({'selected': true}).remove();
+            parent.append(function () { return removed.node(); });
+          });
+          group.on('mouseleave', function () {
+            group.classed({'selected': false});
+          });
+        }
+
+        // TODO: this doesn't really belong here
+        // update the title of the track base and the label
+        context.select('rect.base').attr('title', d.key);
+        context.select('text').text(d.key);
+
+        // draw regions with associations for this track
+        associations = context
+          .selectAll('g.sushi')
+          .data(d.values);
+
+        associations.enter()
+          .append('g')
+          .attr('class', 'sushi');
+        associations.exit().remove();
+        associations.each(drawAssociation);
+
+        // fade in
+        associations
+          .attr('opacity', 0)
+          .transition()
+          .delay(function (d, assoc_id) {
+            var del = (assoc_id + 1) * settings.animation.groupDelay + i * settings.animation.trackDelay;
+            return del;
+          })
+          .duration(500)
+          .attr('opacity', 1);
+      }
+
+      // generate link path
+      function linkPath (d) {
+        console.log(d.score);
+        var left = d.target,
+            right = d.source,
+            ry = settings.arc.minHeight + settings.arc.scale * d.score;
+
+        // swap target and source to simplify drawing
+        if (d.source.x0 < d.target.x0) {
+          left  = d.source;
+          right = d.target;
+        }
+
+        return 'M' + (left.x0 + (left.x1 - left.x0)/2) + ',0 ' // start at the centre of the left region
+          + 'A1,' + ry + ' 0 0,1 '   // radius x/y, axis rotation, large-arc-flag, sweep-flag
+          + (right.x0 + (right.x1 - right.x0)/2) + ',0';         // target of outer arc
+      }
+
+      // return actual render function
+      return function (selection) {
+        var computedHeight,
+            trackOffset = 0,
+            extent = (settings.extent !== undefined) ? settings.extent : self.data.x_extent,
+            tracks = setupTracks(selection, settings);
+
+        // update axes and scales
+        priv.scale = {
+          x: generateScaleX(extent, settings)
+        };
+
+        priv.axes = {
+          x: d3.svg.axis()
+            .scale(priv.scale.x)
+            .orient("bottom")
+            .tickPadding(settings.paddingTick)
+            .ticks(10)
+        };
+
+        // Draw the contents of each track.
+        tracks.each(function (d, i) {
+          updateTrack.bind(this)(getTrackLayerData(d, 'sushi'), i);
+        });
+
+        trackOffset = updateTracksHeightAndPosition(tracks, settings);
+        drawBackground(chart, priv.axes.x, trackOffset);
+
+        return self;
+      };
+    })();
+
+    // load tab-separated data from URL or JSON array
+    self.load = function (url_or_data) {
+      // convert some fields to numbers
+      function converter (d) {
+        return {
+          chr:          d.chr,
+          start:       +d.start,
+          end:         +d.end,
+          targetChr:    d.targetChr,
+          targetStart: +d.targetStart,
+          targetEnd:   +d.targetEnd,
+          score:       +d.associationScore
+        };
+      };
+
+      function postProcessing (data) {
+        var boundData = chart.data()[0];
+        data = groupByTrack(data, 'sushi');
+
+        // merge the new data with possibly existing data
+        if (boundData !== undefined) {
+          data = mergeData(boundData, data, 'sushi');
+        }
+
+        // gather x values and scores for scale
+        self.data = {};
+        var layerData = data.map(function (d) { return getTrackLayerData(d, 'sushi').values; }),
+            flattened = d3.merge(layerData),
+            xs = d3.merge(flattened.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; })),
+            scores = flattened.map(function (d) { return +d.score; }),
+            score_range = d3.extent(scores);
+
+        self.data.x_extent = d3.extent(xs);
+        self.data.scores_min = score_range[0];
+        self.data.scores_max = score_range[1];
+
+        // bind (merged) data and refresh
+        self.refresh(chart.data([data]));
+      };
+
+      if (typeof(url_or_data) === 'object') {
+        postProcessing(url_or_data);
+      } else {
+        // fetch file from URL, convert data and bind grouped data
+        d3.tsv(url_or_data, converter, postProcessing);
+      }
+
+      return self;
+    };
+
+    return self;
+  };
   // initialise the specified graph. Takes an optional _target element
   // to hold the graph.
   function htd3 (graph_name, _target) {

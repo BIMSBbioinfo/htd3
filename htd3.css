@@ -25,10 +25,10 @@ svg.htd3 {
         opacity: 0.5; }
     .htd3 .track .association.selected .link {
         opacity: 0.8; }
-    .htd3 .track .association .region.source {
+    .htd3 .track .region.source {
         opacity: 0.5;
         fill: #aaa; }
-    .htd3 .track .association .region.target {
+    .htd3 .track .region.target {
         opacity: 0.5;
         fill: #555; }
 

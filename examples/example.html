@@ -229,5 +229,59 @@
       </script>
     </div>
 
+    <div class="example">
+      <h1>Example: sushi plot</h1>
+
+      <p>
+        A sushi plot is very much like an associations graph, except
+        that the association score is indicated by the height of the
+        arc.
+      </p>
+      <pre>
+        var testData = [{ chr: 'chr3',
+                          start: 10,
+                          end:   20,
+                          targetChr: 'chr3',
+                          targetStart: 60,
+                          targetEnd: 62,
+                          score: 3,
+                        },
+                        { chr: 'chr5',
+                          start: 70,
+                          end:   100,
+                          targetChr: 'chr5',
+                          targetStart: 57,
+                          targetEnd: 59,
+                          score: 7,
+                        },
+                       ];
+
+        htd3('sushi', '#example-sushi').load(testData);
+      </pre>
+      <div id="example-sushi"></div>
+
+      <script type="text/javascript">
+        var testData = [{ chr: 'chr3',
+                          start: 10,
+                          end:   20,
+                          targetChr: 'chr3',
+                          targetStart: 60,
+                          targetEnd: 62,
+                          score: 3,
+                        },
+                        { chr: 'chr5',
+                          start: 70,
+                          end:   100,
+                          targetChr: 'chr5',
+                          targetStart: 57,
+                          targetEnd: 59,
+                          score: 7,
+                        },
+                       ];
+
+        htd3('sushi', '#example-sushi').load(testData);
+      </script>
+    </div>
+
   </body>
 </html>
