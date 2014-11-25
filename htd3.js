@@ -972,8 +972,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           right = d.target;
         }
 
-        centre_left = (left.x0 + (left.x1 - left.x0)/2);
-        centre_right = (right.x0 + (right.x1 - right.x0)/2) - centre_left;
+        centre_left = left.x0 + (left.x1 - left.x0)/2;
+        centre_right = right.x0 + (right.x1 - right.x0)/2 - centre_left;
 
         return 'M' + centre_left + ',0 '         // start at the centre of the left region
           + 'c0,' + control_y + ' '              // control point at the beginning
