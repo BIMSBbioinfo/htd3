@@ -845,11 +845,11 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
             trackDelay: 200
           },
           extent: undefined,
+          colors: ['red', 'green', 'blue'], // may also be a mapping from types to colours
           arc: {
-            scale: 1,        // score scaling factor>
-            minHeight: 0.2,  // minimum height of an arc
-            thickness: 5,    // stroke thickness
-            color: 'red'     // stroke color
+            scale: 100,     // score scaling factor (maximum score is 1)
+            minHeight: 25,  // minimum height of an arc (height when score is 0)
+            thickness: 3    // stroke thickness
           },
           legendHeight: 20,
           trackHeight: 15,
@@ -915,7 +915,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
             .attr('class', 'link')
             .attr('d', linkPath(linkObjects))
             .style({fill: 'none',
-                    stroke: settings.arc.color,
+                    stroke: self.data.color_map[d.type],
                     'stroke-width': settings.arc.thickness})
             .attr('title', 'score: '+d.score);
 
@@ -960,10 +960,11 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
       // generate link path
       function linkPath (d) {
-        console.log(d.score);
         var left = d.target,
             right = d.source,
-            ry = settings.arc.minHeight + settings.arc.scale * d.score;
+            control_y = -1 * (settings.arc.minHeight + settings.arc.scale * d.score),
+            centre_left,
+            centre_right;
 
         // swap target and source to simplify drawing
         if (d.source.x0 < d.target.x0) {
@@ -971,9 +972,13 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           right = d.target;
         }
 
-        return 'M' + (left.x0 + (left.x1 - left.x0)/2) + ',0 ' // start at the centre of the left region
-          + 'A1,' + ry + ' 0 0,1 '   // radius x/y, axis rotation, large-arc-flag, sweep-flag
-          + (right.x0 + (right.x1 - right.x0)/2) + ',0';         // target of outer arc
+        centre_left = (left.x0 + (left.x1 - left.x0)/2);
+        centre_right = (right.x0 + (right.x1 - right.x0)/2) - centre_left;
+
+        return 'M' + centre_left + ',0 '         // start at the centre of the left region
+          + 'c0,' + control_y + ' '              // control point at the beginning
+          + centre_right + ',' + control_y + ' ' // control point at the end
+          + centre_right + ',0';                 // target point
       }
 
       // return actual render function
@@ -1019,12 +1024,14 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           targetChr:    d.targetChr,
           targetStart: +d.targetStart,
           targetEnd:   +d.targetEnd,
-          score:       +d.associationScore
+          score:       +d.associationScore,
+          type:         d.type
         };
       };
 
       function postProcessing (data) {
-        var boundData = chart.data()[0];
+        var boundData = chart.data()[0],
+            types;
         data = groupByTrack(data, 'sushi');
 
         // merge the new data with possibly existing data
@@ -1043,6 +1050,21 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         self.data.x_extent = d3.extent(xs);
         self.data.scores_min = score_range[0];
         self.data.scores_max = score_range[1];
+
+        // Create map from type to colour.  If a particular
+        // type<->colour mapping is desired, settings.colors must be a
+        // a map of types to colour values.  If settings.colors is a
+        // simple array of colours, the mapping is arbitrary.
+        if (settings.colors instanceof Array) {
+          types = d3.set(flattened.map(function (d) { return d.type; })).values();
+          self.data.color_map = d3.zip(types, settings.colors).reduce(function (acc, pair) {
+            acc[pair[0]] = pair[1];
+            return acc;
+          }, {});
+        } else {
+          // simply copy the colour map from the settings.
+          self.data.color_map = settings.colors;
+        }
 
         // bind (merged) data and refresh
         self.refresh(chart.data([data]));

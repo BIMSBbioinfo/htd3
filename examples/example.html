@@ -238,48 +238,16 @@
         arc.
       </p>
       <pre>
-        var testData = [{ chr: 'chr3',
-                          start: 10,
-                          end:   20,
-                          targetChr: 'chr3',
-                          targetStart: 60,
-                          targetEnd: 62,
-                          score: 3,
-                        },
-                        { chr: 'chr5',
-                          start: 70,
-                          end:   100,
-                          targetChr: 'chr5',
-                          targetStart: 57,
-                          targetEnd: 59,
-                          score: 7,
-                        },
-                       ];
-
-        htd3('sushi', '#example-sushi').load(testData);
+        var selection = d3.select('#example-sushi').append('svg').append('g');
+        htd3.graphs.sushi(selection)
+          .load('sushi.bed');
       </pre>
       <div id="example-sushi"></div>
 
       <script type="text/javascript">
-        var testData = [{ chr: 'chr3',
-                          start: 10,
-                          end:   20,
-                          targetChr: 'chr3',
-                          targetStart: 60,
-                          targetEnd: 62,
-                          score: 3,
-                        },
-                        { chr: 'chr5',
-                          start: 70,
-                          end:   100,
-                          targetChr: 'chr5',
-                          targetStart: 57,
-                          targetEnd: 59,
-                          score: 7,
-                        },
-                       ];
-
-        htd3('sushi', '#example-sushi').load(testData);
+        var selection = d3.select('#example-sushi').append('svg').append('g');
+        htd3.graphs.sushi(selection)
+          .load('sushi.bed');
       </script>
     </div>
 
