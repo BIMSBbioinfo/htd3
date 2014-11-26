@@ -4,6 +4,91 @@ var htd3 = (function () {
   // any graph is a function that takes a d3 selection and returns a
   // function initialised with said selection.
   var graphs = {};
+  var tools = {};
+
+  // needed to embed the styles in saved SVG images
+  var styles = (function () {/*
+.htd3 text {
+    font: 10px sans-serif; }
+
+svg.htd3 {
+    height: 100%;
+    display: block;
+    overflow: hidden;
+    background: #fcfcfc;
+    border: 1px solid #aaa; }
+
+.htd3 .legend rect {
+    opacity: 0.5;
+    stroke: #000;
+    stroke-width: 0.2pt; }
+
+.htd3 .track {
+    width: 100%; }
+    .htd3 .track .base {
+        fill: #eee; }
+    .htd3 .track .strip {
+        fill: #eee; }
+        .htd3 .track .strip .outer {
+     fill: #eee; }
+    .htd3 .track .association .link {
+        opacity: 0.5; }
+    .htd3 .track .association.selected .link {
+        opacity: 0.8; }
+    .htd3 .track .region.source {
+        opacity: 0.5;
+        fill: #aaa; }
+    .htd3 .track .region.target {
+        opacity: 0.5;
+        fill: #555; }
+
+.htd3 .axis text {
+    display: none; }
+.htd3 .axis path.domain {
+    stroke: #000;
+    stroke-width: 0.2pt;
+    fill: none; }
+.htd3 .axis line {
+    fill: none;
+    stroke: #000;
+    stroke-width: 0.1pt;
+    shape-rendering: auto; }
+
+.htd3 .grid path,
+.htd3 .grid line {
+    fill: none;
+    stroke: #888;
+    stroke-width: 0.1pt;
+    shape-rendering: auto; }
+*/}).toString().match(/[^]*\/\*([^]*)\*\/\}$/)[1];
+
+  // generate an image tag containing a self-contained rendered
+  // version of a given SVG element.
+  function svgToDataURL (path) {
+    var svg = d3.select(path)
+          .attr("version", 1.1)
+          .attr("xmlns", "http://www.w3.org/2000/svg"),
+        styleTag = svg.select('style'),
+        inner;
+
+    // inject styles only once
+    if (!styleTag.node()) {
+      styleTag = svg.append('style').html(styles);
+    }
+
+    inner = svg.node().parentNode.innerHTML;
+    return 'data:image/svg+xml;base64,'+ btoa(inner);
+  };
+
+  // places a link to the SVG data at path under the element specified by target.
+  tools.appendSaveSVGLink = function (path, target, name) {
+    var a = '<a download="'+name+'" href="'+svgToDataURL(path)+'">Click to save</a>';
+    d3.select(target)
+      .append('a')
+      .attr('download', name)
+      .attr('href', svgToDataURL(path))
+      .html("Download");
+  };
 
   function generateScaleX (extent, settings) {
     var padded_extent = [ extent[0] - settings.padding.x,
@@ -1097,7 +1182,9 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
     }
   };
 
-  // expose graphs
+  // expose graphs and tools
   htd3.graphs = graphs;
+  htd3.tools = tools;
+
   return htd3;
 })();
