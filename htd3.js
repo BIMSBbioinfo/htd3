@@ -6,7 +6,9 @@ var htd3 = (function () {
   var graphs = {};
   var tools = {};
 
-  // needed to embed the styles in saved SVG images
+  // This is needed to embed the styles in saved SVG images.  I'll be
+  // the first to admit that this is a terrible hack, but I don't want
+  // to inline the styles when generating the SVG.
   var styles = (function () {/*
 .htd3 text {
     font: 10px sans-serif; }
