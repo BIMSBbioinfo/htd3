@@ -565,8 +565,17 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       };
 
       function postProcessing (data) {
+        var boundData = chart.data()[0];
         data = groupByTrack(data, self.layerName);
+
+        // merge the new data with possibly existing data
+        if (boundData !== undefined) {
+          data = mergeData(boundData, data, self.layerName);
+        }
+
         store(data);
+
+        // bind (merged) data and refresh
         self.refresh(chart.data([data]));
       };
 
