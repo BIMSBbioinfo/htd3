@@ -343,6 +343,8 @@ chr1	450	480	predicted	5	10	23
         },
         self = generateSelf(settings, selection);
 
+    self.layerName = 'heatmap';
+
     self.render = function (selection) {
       var priv = {},
           min = self.data.scores_min,
@@ -401,7 +403,7 @@ chr1	450	480	predicted	5	10	23
 
       columns = tracks
         .selectAll('g.heatcolumn')
-        .data(function (d, i) { return getTrackLayerData(d, 'heatmap').values; });
+        .data(function (d, i) { return getTrackLayerData(d, self.layerName).values; });
       columns.enter().append('g').attr('class', 'heatcolumn');
       columns.exit().remove();
 
@@ -462,7 +464,7 @@ chr1	450	480	predicted	5	10	23
         self.data = {};
 
         // gather x values and scores for scale
-        var layerData = data.map(function (d) { return getTrackLayerData(d, 'heatmap').values; }),
+        var layerData = data.map(function (d) { return getTrackLayerData(d, self.layerName).values; }),
             flattened = d3.merge(layerData),
             xs = d3.merge(flattened.map(function (d) { return [+d.start, +d.end]; })),
             scores = d3.merge(flattened.map(function (d) { return d3.values(d.scores); })),
@@ -477,11 +479,11 @@ chr1	450	480	predicted	5	10	23
 
       function postProcessing (data) {
         var boundData = chart.data()[0];
-        data = groupByTrack(data, 'heatmap');
+        data = groupByTrack(data, self.layerName);
 
         // merge the new data with possibly existing data
         if (boundData !== undefined) {
-          data = mergeData(boundData, data, 'heatmap');
+          data = mergeData(boundData, data, self.layerName);
         }
 
         store(data);
@@ -533,6 +535,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         },
         self = generateSelf(settings, selection);
 
+    self.layerName = 'exonintron';
+
     // load tab-separated data from URL or JSON array
     self.load = function (url_or_data) {
       // convert some fields to numbers
@@ -553,7 +557,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
         self.data = {};
 
         // gather x values and scores for scale
-        var layerData = data.map(function (d) { return getTrackLayerData(d, 'exonintron').values; }),
+        var layerData = data.map(function (d) { return getTrackLayerData(d, self.layerName).values; }),
             flattened = d3.merge(layerData),
             xs = d3.merge(flattened.map(function (d) { return [+d.start, +d.end, +d.thickStart, +d.thickEnd]; }));
         self.data.x_extent = d3.extent(xs);
@@ -561,7 +565,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       };
 
       function postProcessing (data) {
-        data = groupByTrack(data, 'exonintron');
+        data = groupByTrack(data, self.layerName);
         store(data);
         self.refresh(chart.data([data]));
       };
@@ -634,7 +638,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       // strips containing the actual exon/intron blocks defined in blockSizes/blockStarts
       strips = tracks
         .selectAll('g.strip')
-        .data(function (d, i) { return getTrackLayerData(d, 'exonintron').values; });
+        .data(function (d, i) { return getTrackLayerData(d, self.layerName).values; });
       strips.enter().append('g').attr('class', 'strip').each(drawExonIntron);
       strips.exit().remove();
       strips.each(spreadStrips);
@@ -671,6 +675,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           paddingTick: 15
         },
         self = generateSelf(settings, selection);
+
+    self.layerName = 'associations';
 
     // private functions
     self.render = (function () {
@@ -856,7 +862,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
         // Draw the contents of each track.
         tracks.each(function (d, i) {
-          updateTrack.bind(this)(getTrackLayerData(d, 'associations'), i);
+          updateTrack.bind(this)(getTrackLayerData(d, self.layerName), i);
         });
 
         trackOffset = updateTracksHeightAndPosition(tracks, settings);
@@ -886,16 +892,16 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
       function postProcessing (data) {
         var boundData = chart.data()[0];
-        data = groupByTrack(data, 'associations');
+        data = groupByTrack(data, self.layerName);
 
         // merge the new data with possibly existing data
         if (boundData !== undefined) {
-          data = mergeData(boundData, data, 'associations');
+          data = mergeData(boundData, data, self.layerName);
         }
 
         // gather x values and scores for scale
         self.data = {};
-        var layerData = data.map(function (d) { return getTrackLayerData(d, 'associations').values; }),
+        var layerData = data.map(function (d) { return getTrackLayerData(d, self.layerName).values; }),
             flattened = d3.merge(layerData),
             xs = d3.merge(flattened.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; })),
             scores = flattened.map(function (d) { return +d.score; }),
@@ -945,6 +951,8 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
           paddingTick: 15
         },
         self = generateSelf(settings, selection);
+
+    self.layerName = 'sushi';
 
     // private functions
     self.render = (function () {
@@ -1090,7 +1098,7 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
 
         // Draw the contents of each track.
         tracks.each(function (d, i) {
-          updateTrack.bind(this)(getTrackLayerData(d, 'sushi'), i);
+          updateTrack.bind(this)(getTrackLayerData(d, self.layerName), i);
         });
 
         trackOffset = updateTracksHeightAndPosition(tracks, settings);
@@ -1119,16 +1127,16 @@ chr11	31804689	31807426	NR_117094	0	+	31807426	31807426	0	1	2737,	0,
       function postProcessing (data) {
         var boundData = chart.data()[0],
             types;
-        data = groupByTrack(data, 'sushi');
+        data = groupByTrack(data, self.layerName);
 
         // merge the new data with possibly existing data
         if (boundData !== undefined) {
-          data = mergeData(boundData, data, 'sushi');
+          data = mergeData(boundData, data, self.layerName);
         }
 
         // gather x values and scores for scale
         self.data = {};
-        var layerData = data.map(function (d) { return getTrackLayerData(d, 'sushi').values; }),
+        var layerData = data.map(function (d) { return getTrackLayerData(d, self.layerName).values; }),
             flattened = d3.merge(layerData),
             xs = d3.merge(flattened.map(function (d) { return [+d.start, +d.end, +d.targetStart, +d.targetEnd]; })),
             scores = flattened.map(function (d) { return +d.score; }),
